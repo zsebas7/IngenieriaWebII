@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Gasto - GestiónGastos IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="index.html">
+                <i class="fas fa-wallet me-2"></i> GestiónGastos IA
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="dashboard.html">
+                            <i class="fas fa-home me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="add-expense.html">
+                            <i class="fas fa-plus me-1"></i> Agregar Gasto
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="estadisticas.html">
+                            <i class="fas fa-chart-bar me-1"></i> Estadísticas
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> Mi Perfil
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="index.html"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-5" style="background-color: #f8fffe; min-height: 100vh;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h1 class="fw-bold" style="color: #0D3527;">
+                        <i class="fas fa-plus-circle me-2"></i> Agregar Nuevo Gasto
+                    </h1>
+                    <p style="color: #666;">Registra tus gastos de forma rápida y fácil</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <ul class="nav nav-tabs border-bottom-0 gap-2" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="true" style="color: #0D3527; border-bottom: 3px solid transparent;">
+                                <i class="fas fa-keyboard me-2"></i> Carga Manual
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold" id="camera-tab" data-bs-toggle="tab" data-bs-target="#camera" type="button" role="tab" aria-controls="camera" aria-selected="false" style="color: #666; border-bottom: 3px solid transparent;">
+                                <i class="fas fa-camera me-2"></i> Cargar Ticket (IA)
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Manual Entry Tab -->
+                <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-container">
+                                <h5 class="fw-bold mb-4" style="color: #0D3527;">Ingresa los datos de tu gasto</h5>
+
+                                <form id="manualExpenseForm">
+                                    <!-- Comercio -->
+                                    <div class="mb-3">
+                                        <label for="comercio" class="form-label">
+                                            <i class="fas fa-store me-2"></i> Comercio/Tienda
+                                        </label>
+                                        <input type="text" class="form-control" id="comercio" placeholder="ej: Supermercado ABC" required>
+                                    </div>
+
+                                    <!-- Monto -->
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="monto" class="form-label">
+                                                <i class="fas fa-dollar-sign me-2"></i> Monto
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="border-color: #ddd;">$</span>
+                                                <input type="number" class="form-control" id="monto" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Fecha -->
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fecha" class="form-label">
+                                                <i class="fas fa-calendar-alt me-2"></i> Fecha
+                                            </label>
+                                            <input type="date" class="form-control" id="fecha" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Categoría -->
+                                    <div class="mb-3">
+                                        <label for="categoria" class="form-label">
+                                            <i class="fas fa-tag me-2"></i> Categoría
+                                        </label>
+                                        <select class="form-select" id="categoria" required>
+                                            <option value="">Selecciona una categoría</option>
+                                            <option value="alimentos">🛒 Alimentos</option>
+                                            <option value="transporte">🚗 Transporte</option>
+                                            <option value="entretenimiento">🎬 Entretenimiento</option>
+                                            <option value="salud">⚕️ Salud</option>
+                                            <option value="educacion">📚 Educación</option>
+                                            <option value="servicios">💡 Servicios</option>
+                                            <option value="otros">📌 Otros</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Descripción -->
+                                    <div class="mb-3">
+                                        <label for="descripcion" class="form-label">
+                                            <i class="fas fa-align-left me-2"></i> Descripción (Opcional)
+                                        </label>
+                                        <textarea class="form-control" id="descripcion" rows="3" placeholder="Agrega detalles sobre este gasto..."></textarea>
+                                    </div>
+
+                                    <!-- Payment Method -->
+                                    <div class="mb-4">
+                                        <label for="metodo" class="form-label">
+                                            <i class="fas fa-credit-card me-2"></i> Método de Pago
+                                        </label>
+                                        <select class="form-select" id="metodo" required>
+                                            <option value="">Selecciona un método</option>
+                                            <option value="efectivo">💵 Efectivo</option>
+                                            <option value="tarjeta_credito">💳 Tarjeta de Crédito</option>
+                                            <option value="tarjeta_debito">🏧 Tarjeta de Débito</option>
+                                            <option value="transferencia">📱 Transferencia</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <a href="dashboard.html" class="btn btn-secondary">
+                                            <i class="fas fa-times me-2"></i> Cancelar
+                                        </a>
+                                        <button type="submit" class="btn custom-btn-primary">
+                                            <i class="fas fa-save me-2"></i> Guardar Gasto
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="col-lg-4">
+                            <div style="background: linear-gradient(135deg, #E8F5F0 0%, #5FD584 100%); border-radius: 15px; padding: 2rem; box-shadow: 0 5px 20px rgba(45, 106, 79, 0.1);">
+                                <h6 style="color: #0D3527; font-weight: bold; margin-bottom: 1rem;">
+                                    <i class="fas fa-info-circle me-2"></i> Consejos
+                                </h6>
+                                <ul style="color: #212529; font-size: 0.9rem; margin: 0; padding-left: 20px;">
+                                    <li class="mb-2">Completa todos los campos requeridos</li>
+                                    <li class="mb-2">Usa fechas exactas para mejor análisis</li>
+                                    <li class="mb-2">Las categorías te ayudan a organizar</li>
+                                    <li class="mb-2">Agrega descripciones para recordar</li>
+                                </ul>
+
+                                <hr style="border-color: rgba(45, 106, 79, 0.3); margin: 1.5rem 0;">
+
+                                <p style="color: #0D3527; font-weight: bold; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-lightbulb me-2"></i> ¿Necesitas Ayuda?
+                                </p>
+                                <p style="color: #212529; font-size: 0.85rem; margin: 0;">
+                                    Carga tus gastos de forma manual aquí o usa nuestra función de cámara para escanear tickets automáticamente con IA.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera/Upload Tab -->
+                <div class="tab-pane fade" id="camera" role="tabpanel" aria-labelledby="camera-tab">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-container">
+                                <h5 class="fw-bold mb-4" style="color: #0D3527;">Carga una imagen de tu ticket</h5>
+
+                                <!-- Upload Area -->
+                                <div class="upload-area border-2 border-dashed rounded-3 p-5 text-center mb-4" id="uploadArea" style="cursor: pointer; transition: all 0.3s ease; background-color: #f8fffe; border-color: #E8F5F0;">
+                                    <input type="file" id="ticketImage" class="form-control d-none" accept="image/*">
+                                    
+                                    <div class="mb-3" id="previewArea" style="display: none;">
+                                        <img id="imagePreview" src="" alt="Vista previa" style="max-width: 100%; max-height: 300px; border-radius: 10px;">
+                                    </div>
+
+                                    <div id="uploadPrompt">
+                                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #0D3527; margin-bottom: 1rem; display: block;"></i>
+                                        <h6 style="color: #0D3527; font-weight: bold;">Arrastra tu ticket aquí</h6>
+                                        <p style="color: #666;">o haz clic para seleccionar un archivo</p>
+                                        <small style="color: #999;">PNG, JPG o GIF (máx. 5MB)</small>
+                                    </div>
+                                </div>
+
+                                <!-- Form for extracted data -->
+                                <form id="cameraExpenseForm" style="display: none;">
+                                    <h6 style="color: #0D3527; font-weight: bold; margin-bottom: 1rem;">Datos extraídos de la IA</h6>
+
+                                    <div class="mb-3">
+                                        <label for="comercioAI" class="form-label">
+                                            <i class="fas fa-store me-2"></i> Comercio
+                                        </label>
+                                        <input type="text" class="form-control" id="comercioAI" placeholder="Comercio detectado" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="montoAI" class="form-label">
+                                                <i class="fas fa-dollar-sign me-2"></i> Monto
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="border-color: #ddd;">$</span>
+                                                <input type="number" class="form-control" id="montoAI" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fechaAI" class="form-label">
+                                                <i class="fas fa-calendar-alt me-2"></i> Fecha
+                                            </label>
+                                            <input type="date" class="form-control" id="fechaAI" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="categoriaAI" class="form-label">
+                                            <i class="fas fa-tag me-2"></i> Categoría
+                                        </label>
+                                        <select class="form-select" id="categoriaAI" required>
+                                            <option value="">Selecciona una categoría</option>
+                                            <option value="alimentos">🛒 Alimentos</option>
+                                            <option value="transporte">🚗 Transporte</option>
+                                            <option value="entretenimiento">🎬 Entretenimiento</option>
+                                            <option value="salud">⚕️ Salud</option>
+                                            <option value="educacion">📚 Educación</option>
+                                            <option value="servicios">💡 Servicios</option>
+                                            <option value="otros">📌 Otros</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <a href="dashboard.html" class="btn btn-secondary">
+                                            <i class="fas fa-times me-2"></i> Cancelar
+                                        </a>
+                                        <button type="submit" class="btn custom-btn-primary">
+                                            <i class="fas fa-save me-2"></i> Guardar Gasto
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="col-lg-4">
+                            <div style="background: linear-gradient(135deg, #E8F5F0 0%, #5FD584 100%); border-radius: 15px; padding: 2rem; box-shadow: 0 5px 20px rgba(45, 106, 79, 0.1);">
+                                <h6 style="color: #0D3527; font-weight: bold; margin-bottom: 1rem;">
+                                    <i class="fas fa-robot me-2"></i> Tecnología IA
+                                </h6>
+                                <p style="color: #212529; font-size: 0.9rem; margin-bottom: 1rem;">
+                                    Nuestra inteligencia artificial utiliza tecnología OCR avanzada para extraer automáticamente:
+                                </p>
+                                <ul style="color: #212529; font-size: 0.85rem; margin: 0; padding-left: 20px;">
+                                    <li>💰 Monto del gasto</li>
+                                    <li>🏪 Nombre del comercio</li>
+                                    <li>📅 Fecha de la transacción</li>
+                                    <li>📝 Descripción de items</li>
+                                </ul>
+
+                                <hr style="border-color: rgba(45, 106, 79, 0.3); margin: 1.5rem 0;">
+
+                                <div style="background-color: white; padding: 1rem; border-radius: 10px; text-align: center;">
+                                    <p style="color: #0D3527; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                        <i class="fas fa-check-circle me-1"></i> Precisión
+                                    </p>
+                                    <p style="color: #212529; font-size: 0.8rem; margin: 0;">
+                                        Hasta 95% de precisión en la extracción de datos
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="custom-navbar text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 GestiónGastos IA. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set date input to today
+        document.getElementById('fecha').valueAsDate = new Date();
+        document.getElementById('fechaAI').valueAsDate = new Date();
+
+        // Manual form submission
+        document.getElementById('manualExpenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('¡Gasto guardado exitosamente!');
+            window.location.href = 'dashboard.html';
+        });
+
+        // Upload Area functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('ticketImage');
+        const previewArea = document.getElementById('previewArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const cameraForm = document.getElementById('cameraExpenseForm');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#0D3527';
+            uploadArea.style.backgroundColor = '#E8F5F0';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#E8F5F0';
+            uploadArea.style.backgroundColor = '#f8fffe';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#E8F5F0';
+            uploadArea.style.backgroundColor = '#f8fffe';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewArea.style.display = 'block';
+                    uploadPrompt.style.display = 'none';
+                    cameraForm.style.display = 'block';
+                    
+                    // Simulate IA extraction (demo)
+                    simulateAIExtraction();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function simulateAIExtraction() {
+            // Simular extracción de datos
+            setTimeout(() => {
+                document.getElementById('comercioAI').value = 'Comercio Detectado';
+                document.getElementById('montoAI').value = '125.50';
+                document.getElementById('categoriaAI').value = 'alimentos';
+            }, 500);
+        }
+
+        // Camera form submission
+        document.getElementById('cameraExpenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('¡Gasto guardado exitosamente desde el ticket!');
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>

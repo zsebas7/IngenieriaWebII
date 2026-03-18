@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - GestiónGastos IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="index.html">
+                <i class="fas fa-wallet me-2"></i> GestiónGastos IA
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="index.html">Inicio</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-light btn-sm fw-bold" href="registro.html">Crear Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #E8F5F0 0%, #5FD584 100%);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-5 col-lg-4">
+                    <div class="form-container">
+                        <div class="text-center mb-4">
+                            <div style="width: 80px; height: 80px; margin: 0 auto 20px; background-color: #0D3527; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user" style="font-size: 2.5rem; color: white;"></i>
+                            </div>
+                            <h2 class="fw-bold" style="color: #0D3527;">Iniciar Sesión</h2>
+                            <p style="color: #212529;">Accede a tu cuenta para gestionar tus gastos</p>
+                        </div>
+
+                        <form id="loginForm">
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-2"></i> Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control" id="email" placeholder="tu@email.com" required>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i> Contraseña
+                                </label>
+                                <input type="password" class="form-control" id="password" placeholder="Ingresa tu contraseña" required>
+                            </div>
+
+                            <!-- Remember Me -->
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe" style="color: #212529;">
+                                    Recuérdame
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn custom-btn-primary w-100 py-2 fw-bold mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+                            </button>
+                        </form>
+
+                        <!-- Forgot Password -->
+                        <div class="text-center mb-3">
+                            <a href="#" style="color: #0D3527; text-decoration: none; font-weight: 500;">¿Olvidaste tu contraseña?</a>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="d-flex align-items-center my-4">
+                            <hr style="flex: 1; border-color: #d0d0d0;">
+                            <span style="color: #212529; margin: 0 10px;">O</span>
+                            <hr style="flex: 1; border-color: #d0d0d0;">
+                        </div>
+
+                        <!-- Social Login -->
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="button" class="btn btn-outline-dark py-2 fw-bold">
+                                <i class="fab fa-google me-2"></i> Google
+                            </button>
+                        </div>
+
+                        <!-- Sign Up Link -->
+                        <div class="text-center">
+                            <p style="color: #212529; margin: 0;">¿No tienes cuenta? 
+                                <a href="registro.html" style="color: #0D3527; text-decoration: none; font-weight: bold;">Regístrate aquí</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div style="background-color: white; border-left: 4px solid #0D3527; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; box-shadow: 0 5px 15px rgba(13, 53, 39, 0.1);">
+                        <div class="d-flex gap-3">
+                            <i class="fas fa-info-circle" style="color: #0D3527; font-size: 1.2rem; margin-top: 2px;"></i>
+                            <div>
+                                <p style="margin: 0; color: #212529;">
+                                    <strong>Demo:</strong> Usa cualquier email y contraseña. Este es un formulario de demostración.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="custom-navbar text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 GestiónGastos IA. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple form handling for demo
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('¡Bienvenido! Redirigiendo al dashboard...');
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>
