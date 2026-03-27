@@ -24,7 +24,7 @@ export class User {
   @Column({ unique: true, length: 120 })
   email!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   passwordHash!: string | null;
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
@@ -39,10 +39,10 @@ export class User {
   @Column({ default: 'ARS' })
   preferredCurrency!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   googleId!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   refreshTokenHash!: string | null;
 
   @OneToMany(() => Expense, (expense) => expense.user)
