@@ -9,6 +9,13 @@
 2. Root directory: `backend`.
 3. Railway detecta `Dockerfile` automaticamente.
 
+### Si aparece "Error creating build plan with Railpack"
+1. Abre `Service Settings` del servicio backend.
+2. En `Root Directory`, usa `backend`.
+3. En `Builder`, selecciona `Dockerfile`.
+4. Reintenta `Build -> Build image`.
+5. Alternativa: desplegar desde la raiz del repo usando `railway.json` en la raiz (ya incluido) para que Railway use `backend/Dockerfile`.
+
 ## 3. Crear PostgreSQL
 1. En el mismo proyecto, Add Service -> PostgreSQL.
 2. Railway inyecta `DATABASE_URL` automaticamente.
