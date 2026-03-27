@@ -14,7 +14,7 @@ async function loadDashboard() {
   document.getElementById('kpiVariation').textContent = `${dashboard.variationVsLastMonth}%`;
 
   renderCategoryChart(dashboard.byCategory);
-  renderExpenses(expenses);
+  renderExpenses(expenses.slice(0, 8));
   renderRecommendations(recommendations);
   renderBudgetProgress(dashboard.budgetProgress);
 }
@@ -23,16 +23,32 @@ function renderCategoryChart(byCategory) {
   const ctx = document.getElementById('categoryChart');
   if (!ctx) return;
 
-  new Chart(ctx, {
-    type: 'pie',
+  if (window.netoCategoryChart) {
+    window.netoCategoryChart.destroy();
+  }
+
+  window.netoCategoryChart = new Chart(ctx, {
+    type: 'doughnut',
     data: {
       labels: Object.keys(byCategory),
       datasets: [
         {
           data: Object.values(byCategory),
-          backgroundColor: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7'],
+          borderWidth: 0,
+          backgroundColor: ['#0f766e', '#0ea5a3', '#34d399', '#84cc16', '#f59e0b', '#f97316', '#ef4444'],
         },
       ],
+    },
+    options: {
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+          },
+        },
+      },
+      cutout: '65%',
     },
   });
 }
@@ -40,6 +56,12 @@ function renderCategoryChart(byCategory) {
 function renderExpenses(expenses) {
   const tbody = document.getElementById('expensesBody');
   if (!tbody) return;
+
+  if (!expenses.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Aún no hay gastos cargados.</td></tr>';
+    return;
+  }
+
   tbody.innerHTML = expenses
     .map(
       (expense) => `
@@ -59,15 +81,16 @@ function renderRecommendations(items) {
   if (!container) return;
 
   if (!items.length) {
-    container.innerHTML = '<p class="text-muted">Todavía no hay recomendaciones.</p>';
+    container.innerHTML = '<p class="text-secondary">Todavía no hay recomendaciones.</p>';
     return;
   }
 
   container.innerHTML = items
+    .slice(0, 4)
     .map(
       (item) => `
-      <div class="alert alert-success">
-        <small>${new Date(item.createdAt).toLocaleString()}</small>
+      <div class="recommendation-item">
+        <small class="text-secondary">${new Date(item.createdAt).toLocaleString()}</small>
         <p class="mb-0">${item.content}</p>
       </div>`,
     )
@@ -86,8 +109,8 @@ function renderBudgetProgress(items) {
           <span>${item.category}</span>
           <span>${item.progressPercent.toFixed(1)}%</span>
         </div>
-        <div class="progress">
-          <div class="progress-bar bg-success" style="width:${Math.min(item.progressPercent, 100)}%"></div>
+        <div class="progress progress-modern">
+          <div class="progress-bar" style="width:${Math.min(item.progressPercent, 100)}%"></div>
         </div>
       </div>`,
     )
@@ -99,61 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
   monthInput.value = new Date().toISOString().slice(0, 7);
 
   document.getElementById('reloadDashboard')?.addEventListener('click', loadDashboard);
-
-  document.getElementById('expenseForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    await window.NetoApi.createExpense({
-      merchant: form.merchant.value,
-      expenseDate: form.expenseDate.value,
-      originalAmount: Number(form.originalAmount.value),
-      currency: form.currency.value,
-      category: form.category.value,
-      description: form.description.value,
-    });
-    form.reset();
-    loadDashboard();
-  });
-
-  document.getElementById('ticketForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const file = document.getElementById('ticketFile').files[0];
-    if (!file) return;
-
-    try {
-      await window.NetoApi.uploadTicket(file);
-      alert('Ticket procesado y gasto agregado automáticamente');
-      loadDashboard();
-    } catch (error) {
-      alert(error.message || 'No se pudo procesar el ticket');
-    }
-  });
-
-  document.getElementById('budgetForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    await window.NetoApi.createBudget({
-      category: form.budgetCategory.value,
-      limitAmount: Number(form.budgetAmount.value),
-      currency: form.budgetCurrency.value,
-      month: form.budgetMonth.value,
-    });
-    form.reset();
-    loadDashboard();
-  });
-
-  document.getElementById('goalForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    await window.NetoApi.createGoal({
-      title: form.goalTitle.value,
-      targetAmount: Number(form.goalAmount.value),
-      currency: form.goalCurrency.value,
-      deadline: form.goalDeadline.value,
-    });
-    form.reset();
-    loadDashboard();
-  });
 
   document.getElementById('generateRecommendation')?.addEventListener('click', async () => {
     await window.NetoApi.generateRecommendation();

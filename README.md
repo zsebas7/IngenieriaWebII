@@ -13,6 +13,12 @@ Proyecto de Ingenieria Web II (2026).
 - `backend/` API REST, autenticacion, OCR, recomendaciones, dashboard, exportes
 - `frontend/` sitio estatico con landing, auth, dashboard y paneles por rol
 
+## Frontend modular (usuario)
+- `dashboard.html`: resumen general y recomendaciones
+- `expenses.html`: carga manual/OCR, presupuestos y metas
+- `stats.html`: analitica detallada con graficos
+- `profile.html`: datos y preferencias del usuario
+
 ## Roles
 - USER: carga gastos manual/OCR, dashboard, presupuesto, metas, recomendaciones
 - ADVISOR: visualiza usuarios y analiza informacion
