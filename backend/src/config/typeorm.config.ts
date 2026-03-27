@@ -19,6 +19,7 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => {
 
   const forceSslFromEnv = process.env.DB_SSL === 'true';
   const useSsl = forceSslFromEnv || (process.env.NODE_ENV === 'production' && hasDatabaseUrl);
+  const syncRequested = process.env.DB_SYNC === 'true';
 
   return {
     type: 'postgres',
@@ -28,7 +29,7 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => {
     username,
     password,
     database,
-    synchronize: process.env.NODE_ENV !== 'production',
+    synchronize: process.env.NODE_ENV !== 'production' || syncRequested,
     autoLoadEntities: true,
     ssl: useSsl ? { rejectUnauthorized: false } : false,
   };
