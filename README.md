@@ -110,6 +110,12 @@ Si aparece `Error creating build plan with Railpack`:
 ## Deploy frontend en Netlify
 Ver guia completa: `frontend/NETLIFY_DEPLOYMENT.md`
 
+Configuracion recomendada para este monorepo:
+- Netlify usa `netlify.toml` en la raiz del repo.
+- `base = "frontend"`
+- `publish = "public/src"`
+- Build command sin build real (sitio estatico).
+
 ## Documentacion detallada
 - Implementacion completa paso a paso: `docs/IMPLEMENTACION_PASO_A_PASO.md`
 

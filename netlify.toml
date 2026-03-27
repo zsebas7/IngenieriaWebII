@@ -1,0 +1,9 @@
+[build]
+  base = "frontend"
+  publish = "public/src"
+  command = "echo \"Static site: no build step\""
+
+[[redirects]]
+  from = "/"
+  to = "/html/index.html"
+  status = 301
