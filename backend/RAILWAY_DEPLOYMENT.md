@@ -24,10 +24,12 @@
 Configura en backend service:
 - `PORT=3000`
 - `NODE_ENV=production`
-- `FRONTEND_URL=https://TU-SITIO.netlify.app`
+- `CORS_ORIGIN=https://TU-SITIO.netlify.app`
+- `FRONTEND_URL=https://TU-SITIO.netlify.app` (fallback)
 - `JWT_ACCESS_SECRET=...`
 - `JWT_REFRESH_SECRET=...`
 - `GOOGLE_CLIENT_ID=...`
+- `OCR_PROVIDER=ocrspace`
 - `OCR_SPACE_API_KEY=...`
 - `OPENAI_API_KEY=...`
 - `OPENAI_MODEL=gpt-4o-mini`

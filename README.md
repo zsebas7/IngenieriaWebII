@@ -22,11 +22,14 @@ Proyecto de Ingenieria Web II (2026).
 Copiar `backend/.env.example` a `backend/.env` y completar:
 
 - `PORT`
+- `NODE_ENV`
+- `CORS_ORIGIN` (recomendado en Railway)
 - `FRONTEND_URL`
 - `DATABASE_URL` (Railway) o `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME`
 - `JWT_ACCESS_SECRET`
 - `JWT_REFRESH_SECRET`
 - `GOOGLE_CLIENT_ID`
+- `OCR_PROVIDER` (`ocrspace`)
 - `OCR_SPACE_API_KEY`
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
