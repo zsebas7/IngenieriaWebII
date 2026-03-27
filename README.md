@@ -104,6 +104,7 @@ Si aparece `Error creating build plan with Railpack`:
 - Configura `Root Directory` del servicio en `backend`.
 - O despliega desde la raiz usando `railway.json` (builder Docker + `backend/Dockerfile`).
 - En `Service Settings` verifica que el builder sea Dockerfile, no Railpack.
+- Si Railway igualmente usa Railpack en la raiz: el repo ya tiene `package.json` de monorepo para que detecte Node y use scripts `build/start` apuntando a `backend`.
 
 ## Deploy frontend en Netlify
 Ver guia completa: `frontend/NETLIFY_DEPLOYMENT.md`

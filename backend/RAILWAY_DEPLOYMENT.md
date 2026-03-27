@@ -15,6 +15,7 @@
 3. En `Builder`, selecciona `Dockerfile`.
 4. Reintenta `Build -> Build image`.
 5. Alternativa: desplegar desde la raiz del repo usando `railway.json` en la raiz (ya incluido) para que Railway use `backend/Dockerfile`.
+6. Si Railway insiste en Railpack desde la raiz: este repo ya incluye `package.json` en raiz (workspaces) para que Railpack detecte Node y ejecute `build/start` sobre `backend`.
 
 ## 3. Crear PostgreSQL
 1. En el mismo proyecto, Add Service -> PostgreSQL.

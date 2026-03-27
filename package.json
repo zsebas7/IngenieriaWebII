@@ -1,0 +1,15 @@
+{
+  "name": "neto-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm --workspace backend run build",
+    "start": "npm --workspace backend run start"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
