@@ -7,100 +7,105 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-white sticky-top border-bottom">
-      <div class="container">
-        <a class="navbar-brand text-success" href="index.html">NETO</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+  <body class="app-shell sc-expenses-page">
+    <header class="sc-topbar">
+      <div class="sc-container sc-topbar-inner">
+        <a class="sc-brand" href="index.html">NETO</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-label="Abrir navegación">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navMain">
-          <ul class="navbar-nav ms-auto me-3">
-            <li class="nav-item"><a class="nav-link" href="#features" data-i18n="navFeatures">Características</a></li>
-            <li class="nav-item"><a class="nav-link" href="#how" data-i18n="navHow">Cómo funciona</a></li>
-            <li class="nav-item"><a class="nav-link" href="#pricing" data-i18n="navPricing">Precios</a></li>
-            <li class="nav-item"><a class="nav-link" href="#faq" data-i18n="navFaq">FAQ</a></li>
-            <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="navContact">Contacto</a></li>
-          </ul>
-          <select class="form-select form-select-sm w-auto me-2" id="languageSelect">
+        <div class="sc-nav collapse" id="navMain">
+          <a href="#features" data-i18n="navFeatures">Características</a>
+          <a href="#how" data-i18n="navHow">Cómo funciona</a>
+          <a href="#pricing" data-i18n="navPricing">Precios</a>
+          <a href="#faq" data-i18n="navFaq">FAQ</a>
+          <a href="#contact" data-i18n="navContact">Contacto</a>
+        </div>
+        <div class="sc-actions">
+          <select class="sc-select" id="languageSelect" aria-label="Seleccionar idioma">
             <option value="es">ES</option>
             <option value="en">EN</option>
           </select>
-          <button class="btn btn-outline-dark btn-sm me-2" onclick="toggleTheme()">Tema</button>
-          <a class="btn btn-neto btn-sm" href="login.html">Ingresar</a>
-        </div>
-      </div>
-    </nav>
-
-    <header class="hero">
-      <div class="container">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-7 fade-in-up">
-            <h1 class="display-5 fw-bold" data-i18n="landingTitle">Controla tus gastos con inteligencia</h1>
-            <p class="lead" data-i18n="landingSubtitle">
-              NETO digitaliza tus tickets, analiza tus hábitos y te ayuda a ahorrar mejor.
-            </p>
-            <div class="d-flex flex-wrap gap-2">
-              <a href="register.html" class="btn btn-neto btn-lg" data-i18n="ctaStart">Crear cuenta</a>
-              <a href="demo.html" class="btn btn-outline-success btn-lg" data-i18n="ctaDemo">Probar sin iniciar sesión</a>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="hero-card p-4">
-              <h5>Prueba rápida</h5>
-              <p class="text-muted">Cuenta demo incluida para presentación final.</p>
-              <ul>
-                <li>usuario@neto.app / Usuario1234</li>
-                <li>asesor@neto.app / Asesor1234</li>
-                <li>admin@neto.app / Admin1234</li>
-              </ul>
-            </div>
-          </div>
+          <button class="sc-button secondary" onclick="toggleTheme()">Tema</button>
+          <a class="sc-button primary" href="login.html">Ingresar</a>
         </div>
       </div>
     </header>
 
-    <main class="container pb-5">
-      <section id="features" class="mb-5">
-        <div class="row g-3">
-          <div class="col-md-3"><div class="feature-card">OCR con OCR.Space</div></div>
-          <div class="col-md-3"><div class="feature-card">Dashboard con Chart.js</div></div>
-          <div class="col-md-3"><div class="feature-card">Recomendaciones con OpenAI</div></div>
-          <div class="col-md-3"><div class="feature-card">Roles Usuario/Asesor/Admin</div></div>
+    <main class="sc-container" style="padding: 2.25rem 0 3rem">
+      <section class="sc-stack two" style="margin-bottom: 1.5rem">
+        <article class="sc-card fade-in-up">
+          <div class="sc-card-header">
+            <p class="eyebrow">Finanzas personales en orden</p>
+            <h1 class="sc-card-title" data-i18n="landingTitle" style="font-size: clamp(1.8rem, 3vw, 2.6rem); margin-top: 0.45rem">
+              Controla tus gastos con inteligencia
+            </h1>
+            <p class="sc-card-description" data-i18n="landingSubtitle">
+              NETO digitaliza tus tickets, analiza tus hábitos y te ayuda a ahorrar mejor.
+            </p>
+          </div>
+          <div class="sc-card-content" style="display: flex; gap: 0.65rem; flex-wrap: wrap">
+            <a href="register.html" class="sc-button primary" data-i18n="ctaStart">Crear cuenta</a>
+            <a href="demo.html" class="sc-button secondary" data-i18n="ctaDemo">Probar sin iniciar sesión</a>
+          </div>
+        </article>
+
+        <article class="sc-card">
+          <div class="sc-card-header">
+            <h2 class="sc-card-title">Prueba rápida</h2>
+            <p class="sc-card-description">Cuenta demo incluida para presentación final.</p>
+          </div>
+          <div class="sc-card-content">
+            <ul style="margin: 0; padding-left: 1rem; line-height: 1.85">
+              <li>usuario@neto.app / Usuario1234</li>
+              <li>asesor@neto.app / Asesor1234</li>
+              <li>admin@neto.app / Admin1234</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <section id="features" class="row g-3" style="margin-bottom: 1.5rem">
+        <div class="col-md-6 col-lg-3"><article class="sc-card"><p style="margin: 0">OCR con OCR.Space</p></article></div>
+        <div class="col-md-6 col-lg-3"><article class="sc-card"><p style="margin: 0">Dashboard con Chart.js</p></article></div>
+        <div class="col-md-6 col-lg-3"><article class="sc-card"><p style="margin: 0">Recomendaciones con OpenAI</p></article></div>
+        <div class="col-md-6 col-lg-3"><article class="sc-card"><p style="margin: 0">Roles Usuario/Asesor/Admin</p></article></div>
+      </section>
+
+      <section id="how" class="sc-card" style="margin-bottom: 1.5rem">
+        <div class="sc-card-header">
+          <h2 class="sc-card-title">Cómo funciona</h2>
+        </div>
+        <div class="sc-card-content">
+          <ol style="margin: 0; padding-left: 1rem; line-height: 1.9">
+            <li>Subes ticket o carga manual.</li>
+            <li>NETO interpreta y guarda el gasto.</li>
+            <li>Visualizas métricas y recomendaciones.</li>
+          </ol>
         </div>
       </section>
 
-      <section id="how" class="section-soft mb-5">
-        <h2>Cómo funciona</h2>
-        <ol>
-          <li>Subes ticket o carga manual.</li>
-          <li>NETO interpreta y guarda el gasto.</li>
-          <li>Visualizas métricas y recomendaciones.</li>
-        </ol>
-      </section>
-
-      <section id="pricing" class="mb-5">
-        <h2 class="mb-3">Planes</h2>
+      <section id="pricing" style="margin-bottom: 1.5rem">
+        <h2 style="margin: 0 0 0.85rem">Planes</h2>
         <div class="row g-3">
-          <div class="col-md-4"><div class="price-card"><h4>Gratis</h4><p>Gestión personal básica</p></div></div>
-          <div class="col-md-4"><div class="price-card"><h4>Pro</h4><p>Más OCR y exportes avanzados</p></div></div>
-          <div class="col-md-4"><div class="price-card"><h4>Asesoría</h4><p>Análisis con asesor financiero</p></div></div>
+          <div class="col-md-4"><article class="sc-card"><h3 style="margin-top: 0">Gratis</h3><p style="margin: 0">Gestión personal básica</p></article></div>
+          <div class="col-md-4"><article class="sc-card"><h3 style="margin-top: 0">Pro</h3><p style="margin: 0">Más OCR y exportes avanzados</p></article></div>
+          <div class="col-md-4"><article class="sc-card"><h3 style="margin-top: 0">Asesoría</h3><p style="margin: 0">Análisis con asesor financiero</p></article></div>
         </div>
       </section>
 
-      <section class="mb-5">
-        <h2>Testimonios</h2>
+      <section style="margin-bottom: 1.5rem">
+        <h2 style="margin: 0 0 0.85rem">Testimonios</h2>
         <div class="row g-3">
-          <div class="col-md-6"><div class="feature-card">"Ahora entiendo en qué se va mi plata cada mes."</div></div>
-          <div class="col-md-6"><div class="feature-card">"La carga automática de tickets me ahorra tiempo."</div></div>
+          <div class="col-md-6"><article class="sc-card"><p style="margin: 0">"Ahora entiendo en qué se va mi plata cada mes."</p></article></div>
+          <div class="col-md-6"><article class="sc-card"><p style="margin: 0">"La carga automática de tickets me ahorra tiempo."</p></article></div>
         </div>
       </section>
 
-      <section id="faq" class="mb-5">
-        <h2>FAQ</h2>
+      <section id="faq" style="margin-bottom: 1.5rem">
+        <h2 style="margin: 0 0 0.85rem">FAQ</h2>
         <div class="accordion" id="faqAcc">
           <div class="accordion-item">
             <h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#f1">¿Qué OCR usan?</button></h2>
@@ -113,28 +118,32 @@
         </div>
       </section>
 
-      <section id="contact" class="mb-5">
-        <h2>Contacto</h2>
-        <form id="contactForm" class="row g-2">
-          <div class="col-md-6"><input class="form-control" name="name" placeholder="Nombre" required /></div>
-          <div class="col-md-6"><input class="form-control" name="email" type="email" placeholder="Email" required /></div>
-          <div class="col-12"><textarea class="form-control" name="message" rows="4" placeholder="Mensaje" required></textarea></div>
-          <div class="col-12"><button class="btn btn-neto">Enviar</button></div>
-        </form>
+      <section id="contact" class="sc-card" style="margin-bottom: 1.5rem">
+        <div class="sc-card-header">
+          <h2 class="sc-card-title">Contacto</h2>
+        </div>
+        <div class="sc-card-content">
+          <form id="contactForm" class="sc-stack" style="gap: 0.65rem">
+            <div class="row g-2">
+              <div class="col-md-6"><input class="sc-input" name="name" placeholder="Nombre" required /></div>
+              <div class="col-md-6"><input class="sc-input" name="email" type="email" placeholder="Email" required /></div>
+            </div>
+            <textarea class="sc-input" name="message" rows="4" placeholder="Mensaje" required></textarea>
+            <div><button class="sc-button primary" type="submit">Enviar</button></div>
+          </form>
+        </div>
       </section>
     </main>
 
-    <footer class="py-4">
-      <div class="container d-flex justify-content-between flex-wrap gap-2">
+    <footer class="sc-topbar" style="margin-top: 1rem">
+      <div class="sc-container sc-topbar-inner" style="padding-top: 0.9rem; padding-bottom: 0.9rem">
         <span>© 2026 NETO</span>
-        <div class="d-flex gap-3">
+        <nav class="sc-nav" style="justify-content: flex-end">
           <a href="terms.html">Términos</a>
           <a href="privacy.html">Privacidad</a>
-        </div>
+        </nav>
       </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/theme.js"></script>
