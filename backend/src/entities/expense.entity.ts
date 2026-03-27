@@ -34,7 +34,7 @@ export class Expense {
   @Column({ type: 'text', nullable: true })
   description!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   ticketImageUrl!: string | null;
 
   @Column({ default: 'manual' })
