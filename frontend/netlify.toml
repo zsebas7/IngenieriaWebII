@@ -1,0 +1,7 @@
+[build]
+  publish = "public/src"
+
+[[redirects]]
+  from = "/"
+  to = "/html/index.html"
+  status = 301

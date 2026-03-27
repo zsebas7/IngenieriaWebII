@@ -1,0 +1,36 @@
+# Deploy Backend en Railway
+
+## 1. Preparar repo
+1. Asegura que `backend/` tenga todos los archivos commiteados.
+2. En Railway crea un proyecto nuevo.
+
+## 2. Crear servicio backend
+1. New Service -> Deploy from GitHub Repo.
+2. Root directory: `backend`.
+3. Railway detecta `Dockerfile` automaticamente.
+
+## 3. Crear PostgreSQL
+1. En el mismo proyecto, Add Service -> PostgreSQL.
+2. Railway inyecta `DATABASE_URL` automaticamente.
+
+## 4. Variables de entorno
+Configura en backend service:
+- `PORT=3000`
+- `NODE_ENV=production`
+- `FRONTEND_URL=https://TU-SITIO.netlify.app`
+- `JWT_ACCESS_SECRET=...`
+- `JWT_REFRESH_SECRET=...`
+- `GOOGLE_CLIENT_ID=...`
+- `OCR_SPACE_API_KEY=...`
+- `OPENAI_API_KEY=...`
+- `OPENAI_MODEL=gpt-4o-mini`
+- `DB_SSL=true`
+
+## 5. Verificacion
+1. Espera deploy exitoso.
+2. Probar `GET /health`.
+3. Ejecutar seed local o endpoint administrativo segun estrategia.
+
+## 6. Notas
+- `synchronize=true` en no-produccion; para produccion real, usa migraciones.
+- CORS depende de `FRONTEND_URL`.
