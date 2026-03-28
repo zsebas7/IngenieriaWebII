@@ -32,7 +32,7 @@
               <option value="es">ES</option>
               <option value="en">EN</option>
             </select>
-            <button class="btn btn-ghost" onclick="toggleTheme()">Tema</button>
+            <button class="btn btn-ghost" onclick="toggleTheme()" aria-label="Cambiar tema"></button>
             <a class="btn btn-outline-secondary" href="login.html">Ingresar</a>
             <a class="btn btn-neto" href="register.html" data-i18n="ctaStart">Crear cuenta</a>
           </div>
@@ -45,10 +45,10 @@
         <div class="hero-grid">
           <section class="hero-card fade-in-up d-flex flex-column justify-content-between">
             <div>
-              <p class="eyebrow mb-2">Finanzas personales con diseño y datos</p>
+              <p class="eyebrow mb-2">Tu dinero con control real</p>
               <h1 class="display-5 fw-bold mb-3" data-i18n="landingTitle">Controla tus gastos con inteligencia</h1>
               <p class="text-secondary fs-5 mb-4" data-i18n="landingSubtitle">
-                Carga movimientos en segundos, visualiza tu mes con claridad y toma mejores decisiones sin planillas externas.
+                Mira exactamente en que se va tu plata, ajusta tus habitos y llega a fin de mes con tranquilidad.
               </p>
               <div class="d-flex flex-wrap gap-2 mb-4">
                 <a href="register.html" class="btn btn-neto btn-lg">Empezar gratis</a>
@@ -57,27 +57,27 @@
             </div>
             <div class="row g-3">
               <div class="col-sm-4">
-                <div class="metric-card h-100">
-                  <small>Tickets procesados</small>
-                  <div class="kpi">48K+</div>
+                <div class="metric-card h-100 pulse-highlight">
+                  <small>Usuarios activos</small>
+                  <div class="kpi"><span class="count-up" data-target="23"></span>K+</div>
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="metric-card h-100">
-                  <small>Precision OCR</small>
-                  <div class="kpi text-success">93%</div>
+                  <small>Ahorro promedio</small>
+                  <div class="kpi text-success"><span class="count-up" data-target="17"></span>%</div>
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="metric-card h-100">
-                  <small>Alertas utiles</small>
-                  <div class="kpi">24/7</div>
+                  <small>Metas cumplidas</small>
+                  <div class="kpi"><span class="count-up" data-target="74"></span>%</div>
                 </div>
               </div>
             </div>
           </section>
           <aside class="hero-product-preview fade-in-up" style="animation-delay: 0.12s">
-            <div class="preview-pill mb-2">Vista del producto</div>
+            <div class="preview-pill mb-2">Tu resumen en 10 segundos</div>
             <div class="preview-grid">
               <div class="preview-block">
                 <small class="text-secondary">Total mensual</small>
@@ -85,7 +85,7 @@
               </div>
               <div class="preview-block">
                 <small class="text-secondary">Meta ahorro</small>
-                <div class="kpi text-success">74%</div>
+                <div class="kpi text-success"><span class="count-up" data-target="74"></span>%</div>
               </div>
               <div class="preview-block" style="grid-column: span 2">
                 <small class="text-secondary d-block mb-2">Distribucion de gastos</small>
@@ -111,8 +111,8 @@
         <div class="row g-3">
           <div class="col-md-6 col-xl-3">
             <article class="feature-card h-100">
-              <h5>OCR de tickets</h5>
-              <p class="text-secondary mb-0">Subes una foto y NETO completa comercio, fecha, moneda y monto automaticamente.</p>
+              <h5>Carga en segundos</h5>
+              <p class="text-secondary mb-0">Registra movimientos rapido para no perder el control diario de tus gastos.</p>
             </article>
           </div>
           <div class="col-md-6 col-xl-3">
@@ -141,7 +141,7 @@
           <div class="col-md-4">
             <p class="eyebrow mb-2">Paso 1</p>
             <h5>Registra tus gastos</h5>
-            <p class="text-secondary mb-0">Carga manual o mediante ticket OCR para capturar todo tu movimiento diario.</p>
+            <p class="text-secondary mb-0">Anota tus movimientos del dia en menos de un minuto.</p>
           </div>
           <div class="col-md-4">
             <p class="eyebrow mb-2">Paso 2</p>
@@ -174,7 +174,7 @@
             <article class="price-card h-100 border-primary">
               <p class="eyebrow mb-2">Pro</p>
               <div class="plan-price">$9.99 <small>/mes</small></div>
-              <p class="text-secondary">OCR ampliado, mas reportes, recomendaciones y exportacion avanzada.</p>
+              <p class="text-secondary">Mas reportes, recomendaciones y exportacion avanzada para avanzar mas rapido.</p>
               <a href="register.html" class="btn btn-neto">Elegir Pro</a>
             </article>
           </div>
@@ -196,10 +196,10 @@
         <div class="accordion" id="faqAccordion">
           <div class="panel-card mb-2">
             <button class="accordion-button collapsed bg-transparent shadow-none px-2" data-bs-target="#faqOne" type="button">
-              Que tan preciso es el OCR?
+              Cuanto tiempo necesito por dia para usar NETO?
             </button>
             <div id="faqOne" class="accordion-collapse collapse px-2 pb-2">
-              <p class="text-secondary mb-0">En tickets legibles, la precision suele estar por encima del 90% y puedes editar antes de guardar.</p>
+              <p class="text-secondary mb-0">Con 2 a 5 minutos diarios puedes mantener tu panel al dia y detectar excesos antes de fin de mes.</p>
             </div>
           </div>
           <div class="panel-card mb-2">

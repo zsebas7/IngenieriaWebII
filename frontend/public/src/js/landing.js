@@ -15,32 +15,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.querySelectorAll('.accordion-button[data-bs-target]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const targetSelector = button.getAttribute('data-bs-target');
-      if (!targetSelector) return;
+  const counters = Array.from(document.querySelectorAll('.count-up[data-target]'));
+  const animateCounter = (counter) => {
+    const target = Number(counter.dataset.target || 0);
+    const decimals = Number(counter.dataset.decimals || 0);
+    const duration = Number(counter.dataset.duration || 1400);
+    const start = performance.now();
 
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
-
-      const willOpen = !target.classList.contains('show');
-      const accordion = button.closest('.accordion');
-
-      if (accordion) {
-        accordion.querySelectorAll('.accordion-collapse.show').forEach((item) => {
-          item.classList.remove('show');
-        });
-        accordion.querySelectorAll('.accordion-button').forEach((item) => {
-          item.classList.add('collapsed');
-        });
+    const format = (value) => {
+      if (decimals > 0) {
+        return value.toFixed(decimals);
       }
+      return Math.floor(value).toString();
+    };
 
-      if (willOpen) {
-        target.classList.add('show');
-        button.classList.remove('collapsed');
+    const step = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = target * eased;
+      counter.textContent = format(value);
+      if (progress < 1) {
+        requestAnimationFrame(step);
       }
-    });
-  });
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  if (counters.length) {
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          animateCounter(entry.target);
+          obs.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.4 },
+    );
+
+    counters.forEach((counter) => observer.observe(counter));
+  }
 
   if (window.NetoI18n) {
     window.NetoI18n.apply(window.NetoI18n.getLanguage());

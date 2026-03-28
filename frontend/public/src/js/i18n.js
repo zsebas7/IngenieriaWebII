@@ -1,7 +1,7 @@
 const translations = {
   es: {
     landingTitle: 'Controla tus gastos con inteligencia',
-    landingSubtitle: 'NETO digitaliza tus tickets, analiza tus hábitos y te ayuda a ahorrar mejor.',
+    landingSubtitle: 'Mira exactamente en que se va tu plata, ajusta tus habitos y llega a fin de mes con tranquilidad.',
     ctaStart: 'Crear cuenta',
     ctaDemo: 'Probar sin iniciar sesión',
     navFeatures: 'Características',
@@ -12,7 +12,7 @@ const translations = {
   },
   en: {
     landingTitle: 'Control your expenses intelligently',
-    landingSubtitle: 'NETO digitizes your receipts, analyzes spending habits and helps you save better.',
+    landingSubtitle: 'See exactly where your money goes, improve your habits, and finish each month with confidence.',
     ctaStart: 'Create account',
     ctaDemo: 'Try without sign in',
     navFeatures: 'Features',
