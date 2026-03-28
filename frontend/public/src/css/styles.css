@@ -289,6 +289,65 @@ h6 {
   background: color-mix(in srgb, var(--neto-card) 96%, transparent);
   color: var(--neto-text);
   min-height: 46px;
+  -webkit-text-fill-color: var(--neto-text);
+}
+
+.form-control-modern::placeholder {
+  color: color-mix(in srgb, var(--neto-muted) 78%, transparent);
+  opacity: 1;
+}
+
+.form-control-modern[type='date'],
+.form-control-modern[type='month'],
+.form-control-modern[type='number'],
+.form-control-modern[type='email'],
+.form-control-modern[type='password'],
+.form-control-modern[type='text'],
+.form-select.form-control-modern,
+textarea.form-control-modern {
+  color: var(--neto-text);
+}
+
+.form-control-modern[type='file'] {
+  padding: 0.35rem;
+}
+
+.form-control-modern[type='file']::file-selector-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  margin-right: 0.8rem;
+  font-weight: 700;
+  background: var(--neto-gradient);
+  color: #fff;
+}
+
+.form-control-modern[type='file']::-webkit-file-upload-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  margin-right: 0.8rem;
+  font-weight: 700;
+  background: var(--neto-gradient);
+  color: #fff;
+}
+
+[data-theme='dark'] .form-control-modern,
+[data-theme='dark'] .form-select.form-control-modern,
+[data-theme='dark'] .form-control-modern:focus,
+[data-theme='dark'] .form-select.form-control-modern:focus {
+  color: var(--neto-text);
+  -webkit-text-fill-color: var(--neto-text);
+}
+
+[data-theme='dark'] input.form-control-modern[type='date']::-webkit-calendar-picker-indicator,
+[data-theme='dark'] input.form-control-modern[type='month']::-webkit-calendar-picker-indicator {
+  filter: invert(0.9) opacity(0.85);
+}
+
+[data-theme='dark'] .form-control-modern[type='number']::-webkit-inner-spin-button,
+[data-theme='dark'] .form-control-modern[type='number']::-webkit-outer-spin-button {
+  filter: invert(0.9);
 }
 
 .form-control-modern:focus,
@@ -391,6 +450,84 @@ h6 {
   border: 1px solid var(--neto-border);
   box-shadow: var(--neto-shadow);
   min-height: 440px;
+}
+
+.hero-product-preview {
+  border: 1px solid var(--neto-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(600px circle at 10% -20%, rgba(59, 130, 246, 0.3), transparent 58%),
+    radial-gradient(380px circle at 100% 10%, rgba(16, 185, 129, 0.2), transparent 60%),
+    color-mix(in srgb, var(--neto-card) 96%, transparent);
+  box-shadow: var(--neto-shadow);
+  padding: 1rem;
+}
+
+.preview-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preview-pill {
+  border: 1px solid color-mix(in srgb, var(--neto-primary) 35%, var(--neto-border));
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--neto-primary-soft);
+  width: max-content;
+}
+
+.preview-block {
+  border-radius: 14px;
+  border: 1px solid var(--neto-border);
+  background: color-mix(in srgb, var(--neto-card) 92%, transparent);
+  padding: 0.85rem;
+}
+
+.preview-chart {
+  height: 180px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(30, 58, 138, 0.16), rgba(30, 58, 138, 0.02)),
+    repeating-linear-gradient(90deg, transparent, transparent 22px, rgba(148, 163, 184, 0.15) 22px, rgba(148, 163, 184, 0.15) 23px);
+  border: 1px solid var(--neto-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-chart::after {
+  content: '';
+  position: absolute;
+  inset: 38% -8% auto -6%;
+  height: 70px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.78), rgba(59, 130, 246, 0.86), rgba(239, 68, 68, 0.78));
+  transform: rotate(-7deg);
+}
+
+.plan-price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.8rem, 2vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.plan-price small {
+  font-family: 'Manrope', sans-serif;
+  color: var(--neto-muted);
+  font-size: 0.9rem;
+}
+
+.lang-select {
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+  min-height: 38px;
+  padding-inline: 0.45rem;
+  font-size: 0.82rem;
 }
 
 .hero-media img {

@@ -27,8 +27,8 @@
             <li class="nav-item"><a class="nav-link" href="#faq" data-i18n="navFaq">FAQ</a></li>
             <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="navContact">Contacto</a></li>
           </ul>
-          <div class="d-flex flex-wrap gap-2 ms-lg-3 mt-3 mt-lg-0">
-            <select id="languageSelect" class="form-select form-control-modern" style="min-width: 95px">
+          <div class="d-flex flex-wrap gap-2 ms-lg-3 mt-3 mt-lg-0 align-items-center">
+            <select id="languageSelect" class="form-select form-control-modern lang-select" aria-label="Idioma">
               <option value="es">ES</option>
               <option value="en">EN</option>
             </select>
@@ -45,10 +45,10 @@
         <div class="hero-grid">
           <section class="hero-card fade-in-up d-flex flex-column justify-content-between">
             <div>
-              <p class="eyebrow mb-2">Finanzas personales sin fricción</p>
+              <p class="eyebrow mb-2">Finanzas personales con diseño y datos</p>
               <h1 class="display-5 fw-bold mb-3" data-i18n="landingTitle">Controla tus gastos con inteligencia</h1>
               <p class="text-secondary fs-5 mb-4" data-i18n="landingSubtitle">
-                NETO unifica carga de gastos, OCR de tickets y analitica para que entiendas tu plata en minutos.
+                Carga movimientos en segundos, visualiza tu mes con claridad y toma mejores decisiones sin planillas externas.
               </p>
               <div class="d-flex flex-wrap gap-2 mb-4">
                 <a href="register.html" class="btn btn-neto btn-lg">Empezar gratis</a>
@@ -58,36 +58,44 @@
             <div class="row g-3">
               <div class="col-sm-4">
                 <div class="metric-card h-100">
-                  <small>Ahorro promedio</small>
-                  <div class="kpi text-success">17%</div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="metric-card h-100">
                   <small>Tickets procesados</small>
                   <div class="kpi">48K+</div>
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="metric-card h-100">
-                  <small>Usuarios activos</small>
-                  <div class="kpi">2.3K</div>
+                  <small>Precision OCR</small>
+                  <div class="kpi text-success">93%</div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="metric-card h-100">
+                  <small>Alertas utiles</small>
+                  <div class="kpi">24/7</div>
                 </div>
               </div>
             </div>
           </section>
-          <aside class="hero-media fade-in-up" style="animation-delay: 0.12s">
-            <img
-              src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80"
-              alt="Personas revisando finanzas"
-              loading="eager"
-            />
-            <div class="hero-floating-card">
-              <div class="d-flex justify-content-between mb-2">
-                <span>Resumen mensual</span>
-                <strong class="text-success">+12.4%</strong>
+          <aside class="hero-product-preview fade-in-up" style="animation-delay: 0.12s">
+            <div class="preview-pill mb-2">Vista del producto</div>
+            <div class="preview-grid">
+              <div class="preview-block">
+                <small class="text-secondary">Total mensual</small>
+                <div class="kpi">ARS 428.900</div>
               </div>
-              <small class="d-block opacity-75">Tus gastos fijos estan estables y bajaste delivery en comparacion al mes pasado.</small>
+              <div class="preview-block">
+                <small class="text-secondary">Meta ahorro</small>
+                <div class="kpi text-success">74%</div>
+              </div>
+              <div class="preview-block" style="grid-column: span 2">
+                <small class="text-secondary d-block mb-2">Distribucion de gastos</small>
+                <div class="preview-chart"></div>
+              </div>
+              <div class="preview-block" style="grid-column: span 2">
+                <div class="d-flex justify-content-between mb-1"><span>Transporte</span><strong>ARS 52.100</strong></div>
+                <div class="d-flex justify-content-between mb-1"><span>Supermercado</span><strong>ARS 138.000</strong></div>
+                <div class="d-flex justify-content-between"><span>Suscripciones</span><strong>ARS 28.900</strong></div>
+              </div>
             </div>
           </aside>
         </div>
@@ -97,98 +105,84 @@
     <main class="container pb-5">
       <section id="features" class="mb-5">
         <div class="section-title">
-          <h2 class="h3 mb-0">Un producto pensado para decisiones reales</h2>
+          <h2 class="h3 mb-0">Una experiencia pensada para usar todos los dias</h2>
           <a href="register.html" class="text-link">Crear cuenta</a>
         </div>
         <div class="row g-3">
           <div class="col-md-6 col-xl-3">
             <article class="feature-card h-100">
               <h5>OCR de tickets</h5>
-              <p class="text-secondary mb-0">Subis una foto y NETO convierte automaticamente montos, comercio y fecha.</p>
+              <p class="text-secondary mb-0">Subes una foto y NETO completa comercio, fecha, moneda y monto automaticamente.</p>
             </article>
           </div>
           <div class="col-md-6 col-xl-3">
             <article class="feature-card h-100">
-              <h5>Dashboard accionable</h5>
-              <p class="text-secondary mb-0">Metricas claras, tendencias y alertas para entender donde se va tu dinero.</p>
+              <h5>Resumen diario</h5>
+              <p class="text-secondary mb-0">Mira cuanto gastaste hoy y donde subio tu consumo sin navegar pantallas complejas.</p>
+            </article>
+          </div>
+          <div class="col-md-6 col-xl-3">
+            <article class="feature-card h-100">
+              <h5>Presupuestos activos</h5>
+              <p class="text-secondary mb-0">Define limites por categoria y recibe alertas antes de pasarte.</p>
             </article>
           </div>
           <div class="col-md-6 col-xl-3">
             <article class="feature-card h-100">
               <h5>Roles integrados</h5>
-              <p class="text-secondary mb-0">Usuario, asesor y admin en una sola experiencia con permisos diferenciados.</p>
-            </article>
-          </div>
-          <div class="col-md-6 col-xl-3">
-            <article class="feature-card h-100">
-              <h5>Objetivos y presupuestos</h5>
-              <p class="text-secondary mb-0">Cargas metas y limites mensuales para controlar consumo sin planillas externas.</p>
+              <p class="text-secondary mb-0">Usuario, asesor y admin en la misma plataforma con flujos consistentes.</p>
             </article>
           </div>
         </div>
       </section>
 
       <section id="how" class="hero-panel mb-5">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-6">
-            <h3 class="mb-3">Como funciona NETO</h3>
-            <p class="text-secondary mb-4">Flujo simple para que uses la app todos los dias y no solo al final del mes.</p>
-            <div class="d-grid gap-3">
-              <div class="panel-card">
-                <p class="eyebrow mb-1">Paso 1</p>
-                <strong>Registra gastos</strong>
-                <p class="text-secondary mb-0">Manual u OCR para que nunca pierdas un movimiento.</p>
-              </div>
-              <div class="panel-card">
-                <p class="eyebrow mb-1">Paso 2</p>
-                <strong>Analiza categorias</strong>
-                <p class="text-secondary mb-0">Compara meses, identifica picos y entiende habitos.</p>
-              </div>
-              <div class="panel-card">
-                <p class="eyebrow mb-1">Paso 3</p>
-                <strong>Toma accion</strong>
-                <p class="text-secondary mb-0">Ajusta presupuestos y prioriza objetivos con datos concretos.</p>
-              </div>
-            </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <p class="eyebrow mb-2">Paso 1</p>
+            <h5>Registra tus gastos</h5>
+            <p class="text-secondary mb-0">Carga manual o mediante ticket OCR para capturar todo tu movimiento diario.</p>
           </div>
-          <div class="col-lg-6">
-            <img
-              src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80"
-              class="img-fluid rounded-4"
-              alt="Analisis financiero"
-              loading="lazy"
-            />
+          <div class="col-md-4">
+            <p class="eyebrow mb-2">Paso 2</p>
+            <h5>Analiza tendencias</h5>
+            <p class="text-secondary mb-0">Visualiza categorias, variaciones mensuales y comportamiento por dia.</p>
+          </div>
+          <div class="col-md-4">
+            <p class="eyebrow mb-2">Paso 3</p>
+            <h5>Ajusta y mejora</h5>
+            <p class="text-secondary mb-0">Toma accion con recomendaciones y controla tus metas de ahorro.</p>
           </div>
         </div>
       </section>
 
       <section id="pricing" class="mb-5">
         <div class="section-title">
-          <h2 class="h3 mb-0">Planes que crecen con vos</h2>
-          <span class="text-secondary">Sin contrato anual obligatorio</span>
+          <h2 class="h3 mb-0">Planes con precios claros</h2>
+          <span class="text-secondary">Pago mensual, sin permanencia</span>
         </div>
         <div class="row g-3">
           <div class="col-md-4">
             <article class="price-card h-100">
               <p class="eyebrow mb-2">Free</p>
-              <h4 class="mb-2">Primer control financiero</h4>
-              <p class="text-secondary">Ideal para comenzar y ordenar habitos de consumo.</p>
+              <div class="plan-price">$0 <small>/mes</small></div>
+              <p class="text-secondary">Hasta 50 movimientos por mes, dashboard base y una cuenta personal.</p>
               <a href="register.html" class="btn btn-outline-secondary">Comenzar</a>
             </article>
           </div>
           <div class="col-md-4">
             <article class="price-card h-100 border-primary">
               <p class="eyebrow mb-2">Pro</p>
-              <h4 class="mb-2">Mas automatizacion</h4>
-              <p class="text-secondary">Mayor volumen de OCR, reportes exportables y panel avanzado.</p>
+              <div class="plan-price">$9.99 <small>/mes</small></div>
+              <p class="text-secondary">OCR ampliado, mas reportes, recomendaciones y exportacion avanzada.</p>
               <a href="register.html" class="btn btn-neto">Elegir Pro</a>
             </article>
           </div>
           <div class="col-md-4">
             <article class="price-card h-100">
               <p class="eyebrow mb-2">Advisor</p>
-              <h4 class="mb-2">Para asesorias</h4>
-              <p class="text-secondary">Gestiona multiples cuentas y monitorea resultados de clientes.</p>
+              <div class="plan-price">$24.99 <small>/mes</small></div>
+              <p class="text-secondary">Gestion multiusuario para asesores con panel consolidado y permisos por rol.</p>
               <a href="register.html" class="btn btn-outline-secondary">Solicitar acceso</a>
             </article>
           </div>
@@ -205,7 +199,7 @@
               Que tan preciso es el OCR?
             </button>
             <div id="faqOne" class="accordion-collapse collapse px-2 pb-2">
-              <p class="text-secondary mb-0">En tickets legibles, la precision supera el 90% y siempre puedes corregir antes de guardar.</p>
+              <p class="text-secondary mb-0">En tickets legibles, la precision suele estar por encima del 90% y puedes editar antes de guardar.</p>
             </div>
           </div>
           <div class="panel-card mb-2">
@@ -213,15 +207,15 @@
               Puedo usar NETO en celular?
             </button>
             <div id="faqTwo" class="accordion-collapse collapse px-2 pb-2">
-              <p class="text-secondary mb-0">Si, toda la experiencia es responsive y soporta captura de tickets desde el telefono.</p>
+              <p class="text-secondary mb-0">Si, el flujo fue diseniado para desktop y mobile, incluyendo carga de tickets desde telefono.</p>
             </div>
           </div>
           <div class="panel-card">
             <button class="accordion-button collapsed bg-transparent shadow-none px-2" data-bs-target="#faqThree" type="button">
-              El modo oscuro se guarda?
+              El tema oscuro se guarda?
             </button>
             <div id="faqThree" class="accordion-collapse collapse px-2 pb-2">
-              <p class="text-secondary mb-0">Si, tu preferencia de tema se guarda localmente y se aplica en todas las paginas.</p>
+              <p class="text-secondary mb-0">Si, se guarda tu preferencia y se aplica automaticamente en todo el producto.</p>
             </div>
           </div>
         </div>
@@ -231,7 +225,7 @@
         <div class="row g-4">
           <div class="col-lg-5">
             <h3 class="mb-2">Hablemos de tu caso</h3>
-            <p class="text-secondary mb-0">Envianos tu consulta y te respondemos con recomendaciones segun tu perfil financiero.</p>
+            <p class="text-secondary mb-0">Escribenos y te orientamos para configurar NETO segun tu perfil financiero.</p>
           </div>
           <div class="col-lg-7">
             <form id="contactForm" class="row g-2">
