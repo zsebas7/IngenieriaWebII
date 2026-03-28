@@ -23,6 +23,11 @@ function renderCategoryChart(byCategory) {
   const ctx = document.getElementById('categoryChart');
   if (!ctx) return;
 
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const palette = isDark
+    ? ['#60a5fa', '#3b82f6', '#22c55e', '#fbbf24', '#f87171', '#c084fc', '#38bdf8']
+    : ['#1e3a8a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#0ea5e9'];
+
   if (window.netoCategoryChart) {
     window.netoCategoryChart.destroy();
   }
@@ -35,7 +40,7 @@ function renderCategoryChart(byCategory) {
         {
           data: Object.values(byCategory),
           borderWidth: 0,
-          backgroundColor: ['#0f766e', '#0ea5a3', '#34d399', '#84cc16', '#f59e0b', '#f97316', '#ef4444'],
+          backgroundColor: palette,
         },
       ],
     },

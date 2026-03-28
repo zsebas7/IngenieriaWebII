@@ -3,22 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Estadísticas | NETO</title>
+    <title>Estadisticas | NETO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
   <body class="app-shell">
     <header class="topbar">
-      <div class="container py-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="container py-3 dashboard-header">
         <div>
-          <p class="eyebrow mb-1">Análisis</p>
-          <h1 class="h4 mb-0">Estadísticas detalladas</h1>
+          <p class="eyebrow mb-1">Analitica</p>
+          <h1 class="h3 mb-0">Estadisticas detalladas</h1>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
           <input class="form-control form-control-modern" id="monthInput" type="month" />
           <button class="btn btn-neto" id="reloadStats">Actualizar</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">Tema</button>
-          <button class="btn btn-outline-danger btn-sm" onclick="NetoAuth.logout()">Salir</button>
+          <button class="btn btn-ghost" onclick="toggleTheme()">Tema</button>
+          <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
         </div>
       </div>
     </header>
@@ -26,8 +26,8 @@
     <nav class="subnav">
       <div class="container d-flex flex-wrap gap-2 py-2">
         <a class="chip" href="dashboard.html">Resumen</a>
-        <a class="chip" href="expenses.html">Cargar gastos</a>
-        <a class="chip active" href="stats.html">Estadísticas</a>
+        <a class="chip" href="expenses.html">Movimientos</a>
+        <a class="chip active" href="stats.html">Estadisticas</a>
         <a class="chip" href="profile.html">Perfil</a>
       </div>
     </nav>
@@ -37,16 +37,16 @@
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total ARS</small><div class="kpi" id="kpiTotal">-</div></div></div>
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio</small><div class="kpi" id="kpiAverage">-</div></div></div>
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Transacciones</small><div class="kpi" id="kpiTransactions">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="kpiCategory">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoria</small><div class="kpi" id="kpiCategory">-</div></div></div>
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-lg-6"><div class="panel-card"><h5 class="mb-3">Distribución por categoría</h5><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div></div>
-        <div class="col-lg-6"><div class="panel-card"><h5 class="mb-3">Gasto por día</h5><div class="chart-wrap"><canvas id="dailyChart"></canvas></div></div></div>
+        <div class="col-lg-6"><section class="panel-card"><h5 class="mb-3">Distribucion por categoria</h5><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></section></div>
+        <div class="col-lg-6"><section class="panel-card"><h5 class="mb-3">Gasto por dia</h5><div class="chart-wrap"><canvas id="dailyChart"></canvas></div></section></div>
       </div>
 
       <section class="panel-card">
-        <h5 class="mb-3">Detalle por categoría</h5>
+        <h5 class="mb-3">Detalle por categoria</h5>
         <div id="categoryBreakdown"></div>
       </section>
     </main>

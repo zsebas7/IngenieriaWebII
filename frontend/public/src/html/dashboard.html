@@ -9,14 +9,19 @@
   </head>
   <body class="app-shell">
     <header class="topbar">
-      <div class="container py-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="container py-3 dashboard-header">
         <div>
-          <p class="eyebrow mb-1">Panel principal</p>
-          <h1 class="h4 mb-0">Resumen financiero</h1>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="logo-mark" aria-hidden="true" style="width: 28px; height: 28px"></span>
+            <p class="eyebrow mb-0">Panel principal</p>
+          </div>
+          <h1 class="h3 mb-0">Resumen financiero</h1>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">Tema</button>
-          <button class="btn btn-outline-danger btn-sm" onclick="NetoAuth.logout()">Salir</button>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <input class="form-control form-control-modern" id="monthInput" type="month" />
+          <button class="btn btn-neto" id="reloadDashboard">Actualizar</button>
+          <button class="btn btn-ghost" onclick="toggleTheme()">Tema</button>
+          <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
         </div>
       </div>
     </header>
@@ -24,8 +29,8 @@
     <nav class="subnav">
       <div class="container d-flex flex-wrap gap-2 py-2">
         <a class="chip active" href="dashboard.html">Resumen</a>
-        <a class="chip" href="expenses.html">Cargar gastos</a>
-        <a class="chip" href="stats.html">Estadísticas</a>
+        <a class="chip" href="expenses.html">Movimientos</a>
+        <a class="chip" href="stats.html">Estadisticas</a>
         <a class="chip" href="profile.html">Perfil</a>
       </div>
     </nav>
@@ -37,61 +42,55 @@
             <p class="text-secondary mb-1">Bienvenido</p>
             <h2 class="mb-0">Hola, <span id="welcomeName"></span></h2>
           </div>
-          <div class="d-flex gap-2">
-            <input class="form-control form-control-modern" id="monthInput" type="month" />
-            <button class="btn btn-neto" id="reloadDashboard">Actualizar</button>
-          </div>
+          <button class="btn btn-neto" id="generateRecommendation">Generar recomendacion</button>
         </div>
       </section>
 
       <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total del mes</small><div class="kpi" id="kpiTotal">-</div></div></div>
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio</small><div class="kpi" id="kpiAverage">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="kpiCategory">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Variación</small><div class="kpi" id="kpiVariation">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoria</small><div class="kpi" id="kpiCategory">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Variacion</small><div class="kpi" id="kpiVariation">-</div></div></div>
       </div>
 
       <div class="row g-3 mb-4">
         <div class="col-lg-7">
-          <div class="panel-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">Distribución por categoría</h5>
-              <a class="text-link" href="stats.html">Ver detalle</a>
+          <section class="panel-card h-100">
+            <div class="section-title mb-3">
+              <h5 class="mb-0">Distribucion por categoria</h5>
+              <a class="text-link" href="stats.html">Ver analisis</a>
             </div>
             <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
-          </div>
+          </section>
         </div>
         <div class="col-lg-5">
-          <div class="panel-card h-100">
-            <h5 class="mb-3">Presupuestos</h5>
+          <section class="panel-card h-100">
+            <h5 class="mb-3">Presupuestos activos</h5>
             <div id="budgetProgress"></div>
-          </div>
+          </section>
         </div>
       </div>
 
       <div class="row g-3">
         <div class="col-lg-7">
-          <div class="panel-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">Últimos gastos</h5>
-              <a class="text-link" href="expenses.html">Gestionar gastos</a>
+          <section class="panel-card h-100">
+            <div class="section-title mb-3">
+              <h5 class="mb-0">Ultimos gastos</h5>
+              <a class="text-link" href="expenses.html">Gestionar</a>
             </div>
             <div class="table-responsive">
               <table class="table table-modern align-middle">
-                <thead><tr><th>Fecha</th><th>Comercio</th><th>Categoría</th><th>Original</th><th>ARS</th></tr></thead>
+                <thead><tr><th>Fecha</th><th>Comercio</th><th>Categoria</th><th>Original</th><th>ARS</th></tr></thead>
                 <tbody id="expensesBody"></tbody>
               </table>
             </div>
-          </div>
+          </section>
         </div>
         <div class="col-lg-5">
-          <div class="panel-card h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">Recomendaciones</h5>
-              <button class="btn btn-neto btn-sm" id="generateRecommendation">Generar</button>
-            </div>
+          <section class="panel-card h-100">
+            <h5 class="mb-3">Recomendaciones</h5>
             <div id="recommendations"></div>
-          </div>
+          </section>
         </div>
       </div>
     </main>

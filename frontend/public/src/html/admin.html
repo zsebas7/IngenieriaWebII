@@ -9,23 +9,23 @@
   </head>
   <body class="app-shell">
     <header class="topbar">
-      <div class="container py-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="container py-3 dashboard-header">
         <div>
-          <p class="eyebrow mb-1">Administración</p>
-          <h1 class="h4 mb-0">Gestión de usuarios</h1>
+          <p class="eyebrow mb-1">Administracion</p>
+          <h1 class="h3 mb-0">Gestion de usuarios</h1>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">Tema</button>
-          <button class="btn btn-outline-danger btn-sm" onclick="NetoAuth.logout()">Salir</button>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-ghost" onclick="toggleTheme()">Tema</button>
+          <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
         </div>
       </div>
     </header>
 
     <main class="container py-4 py-lg-5">
       <section class="panel-card fade-in-up">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-3">
           <h5 class="mb-0">Usuarios registrados</h5>
-          <span class="text-secondary small">Cambios en tiempo real</span>
+          <span class="text-secondary small">Gestion de roles y estado</span>
         </div>
         <div class="table-responsive">
           <table class="table table-modern align-middle">

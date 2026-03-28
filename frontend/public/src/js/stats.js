@@ -40,6 +40,12 @@ function renderCategoryBreakdown(byCategory) {
 function renderCharts(byCategory, expenses) {
   const categoryCtx = document.getElementById('categoryChart');
   const dailyCtx = document.getElementById('dailyChart');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const categoryColor = isDark ? '#60a5fa' : '#1e3a8a';
+  const lineColor = isDark ? '#f87171' : '#ef4444';
+  const lineFill = isDark ? 'rgba(248, 113, 113, 0.2)' : 'rgba(239, 68, 68, 0.16)';
+  const tickColor = isDark ? '#9ca3af' : '#4b5563';
+  const gridColor = isDark ? 'rgba(148, 163, 184, 0.16)' : 'rgba(148, 163, 184, 0.22)';
 
   if (window.netoStatsCategoryChart) {
     window.netoStatsCategoryChart.destroy();
@@ -57,13 +63,16 @@ function renderCharts(byCategory, expenses) {
           label: 'Monto ARS',
           data: Object.values(byCategory),
           borderRadius: 8,
-          backgroundColor: '#0ea5a3',
+          backgroundColor: categoryColor,
         },
       ],
     },
     options: {
       plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } },
+      scales: {
+        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: { beginAtZero: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+      },
     },
   });
 
@@ -76,8 +85,8 @@ function renderCharts(byCategory, expenses) {
         {
           label: 'Gasto diario ARS',
           data: daily.values,
-          borderColor: '#f97316',
-          backgroundColor: 'rgba(249, 115, 22, 0.2)',
+          borderColor: lineColor,
+          backgroundColor: lineFill,
           fill: true,
           tension: 0.35,
         },
@@ -85,7 +94,10 @@ function renderCharts(byCategory, expenses) {
     },
     options: {
       plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } },
+      scales: {
+        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: { beginAtZero: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+      },
     },
   });
 }
