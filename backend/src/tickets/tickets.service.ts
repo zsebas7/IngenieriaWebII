@@ -45,10 +45,15 @@ export class TicketsService {
     formData.append('scale', 'true');
     formData.append('file', file.buffer, file.originalname);
 
-    const response = await axios.post('https://api.ocr.space/parse/image', formData, {
-      headers: formData.getHeaders(),
-      timeout: 30000,
-    });
+    let response;
+    try {
+      response = await axios.post('https://api.ocr.space/parse/image', formData, {
+        headers: formData.getHeaders(),
+        timeout: 30000,
+      });
+    } catch {
+      throw new BadRequestException('No se pudo conectar al servicio OCR. Reintente en unos minutos.');
+    }
 
     const rawText = response.data?.ParsedResults?.[0]?.ParsedText;
     if (!rawText) {
@@ -75,9 +80,10 @@ export class TicketsService {
     const currencyRaw = (amountMatch[1] ?? 'ARS').toUpperCase().replace('$', 'ARS');
     const currency = ['ARS', 'USD', 'EUR'].includes(currencyRaw) ? currencyRaw : 'ARS';
 
-    const [day, month, year] = dateMatch[1].split(/[\/-]/);
-    const fullYear = year.length === 2 ? `20${year}` : year;
-    const formattedDate = `${fullYear}-${month}-${day}`;
+    const formattedDate = this.normalizeDate(dateMatch[1]);
+    if (!formattedDate) {
+      return null;
+    }
 
     const merchant = lines[0].slice(0, 120);
     const text = rawText.toLowerCase();
@@ -98,5 +104,35 @@ export class TicketsService {
       category,
       raw: response.data,
     };
+  }
+
+  private normalizeDate(rawDate: string): string | null {
+    const parts = rawDate.split(/[\/-]/).map((value) => value.trim());
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    const [dayRaw, monthRaw, yearRaw] = parts;
+    const day = Number(dayRaw);
+    const month = Number(monthRaw);
+    const year = Number(yearRaw.length === 2 ? `20${yearRaw}` : yearRaw);
+
+    if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
+      return null;
+    }
+
+    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2000 || year > 2100) {
+      return null;
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+      return null;
+    }
+
+    const yyyy = String(year);
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 }

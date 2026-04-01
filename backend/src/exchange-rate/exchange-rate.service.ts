@@ -45,16 +45,28 @@ export class ExchangeRateService {
       return this.cache.rates;
     }
 
-    const response = await axios.get('https://api.frankfurter.app/latest?from=ARS&to=USD,EUR');
-    const ratesFromArs = response.data?.rates ?? { USD: 0.001, EUR: 0.001 };
+    try {
+      const response = await axios.get('https://api.frankfurter.app/latest?from=ARS&to=USD,EUR');
+      const ratesFromArs = response.data?.rates ?? { USD: 0.001, EUR: 0.001 };
 
-    const ratesToArs = {
-      USD: ratesFromArs.USD ? 1 / ratesFromArs.USD : 1,
-      EUR: ratesFromArs.EUR ? 1 / ratesFromArs.EUR : 1,
-      ARS: 1,
-    };
+      const ratesToArs = {
+        USD: ratesFromArs.USD ? 1 / ratesFromArs.USD : 1,
+        EUR: ratesFromArs.EUR ? 1 / ratesFromArs.EUR : 1,
+        ARS: 1,
+      };
 
-    this.cache = { fetchedAt: now, rates: ratesToArs };
-    return ratesToArs;
+      this.cache = { fetchedAt: now, rates: ratesToArs };
+      return ratesToArs;
+    } catch {
+      if (this.cache) {
+        return this.cache.rates;
+      }
+
+      return {
+        ARS: 1,
+        USD: 1200,
+        EUR: 1300,
+      };
+    }
   }
 }
