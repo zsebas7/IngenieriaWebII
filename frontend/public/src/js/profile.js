@@ -10,6 +10,10 @@ function fillForm(user) {
   form.fullName.value = user.fullName || '';
   form.language.value = user.language || 'es';
   form.preferredCurrency.value = user.preferredCurrency || 'ARS';
+  const savedTheme = localStorage.getItem('neto_theme') || 'light';
+  if (form.themePreference) {
+    form.themePreference.value = savedTheme;
+  }
 }
 
 async function loadProfile() {
@@ -24,16 +28,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('profileForm');
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    window.NetoUI?.clearMessage(form);
 
-    const payload = await window.NetoApi.updateMyProfile({
-      fullName: form.fullName.value,
-      language: form.language.value,
-      preferredCurrency: form.preferredCurrency.value,
-    });
+    const nextTheme = form.themePreference?.value || 'light';
+    localStorage.setItem('neto_theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
 
-    localStorage.setItem('neto_user', JSON.stringify(payload));
-    updateTopSummary(payload);
-    alert('Perfil actualizado correctamente.');
+    try {
+      const payload = await window.NetoApi.updateMyProfile({
+        fullName: form.fullName.value,
+        language: form.language.value,
+        preferredCurrency: form.preferredCurrency.value,
+      });
+
+      localStorage.setItem('neto_user', JSON.stringify(payload));
+      updateTopSummary(payload);
+      window.NetoUI?.showMessage(form, 'Perfil actualizado correctamente.', 'success');
+    } catch (error) {
+      window.NetoUI?.showMessage(form, error.message || 'No se pudo actualizar el perfil.', 'error');
+    }
   });
 
   loadProfile();

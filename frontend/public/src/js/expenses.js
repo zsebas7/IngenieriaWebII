@@ -29,67 +29,98 @@ async function refreshExpenses() {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
+  const ticketInput = document.getElementById('ticketFile');
+  const ticketDropzone = document.getElementById('ticketDropzone');
+  const ticketFileName = document.getElementById('ticketFileName');
+  let droppedTicketFile = null;
+
+  const renderSelectedTicketName = (file) => {
+    if (!ticketFileName) return;
+    ticketFileName.textContent = file ? `Archivo: ${file.name}` : 'Ningún archivo seleccionado';
+  };
+
+  if (ticketInput) {
+    ticketInput.addEventListener('change', () => {
+      droppedTicketFile = null;
+      const selected = ticketInput.files?.[0] || null;
+      renderSelectedTicketName(selected);
+    });
+  }
+
+  if (ticketDropzone && ticketInput) {
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      ticketDropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        ticketDropzone.classList.add('is-dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      ticketDropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        ticketDropzone.classList.remove('is-dragover');
+      });
+    });
+
+    ticketDropzone.addEventListener('drop', (event) => {
+      const file = event.dataTransfer?.files?.[0] || null;
+      if (!file) return;
+
+      droppedTicketFile = file;
+      renderSelectedTicketName(file);
+
+      try {
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        ticketInput.files = transfer.files;
+      } catch {
+        // Some environments do not allow programmatic assignment to input.files.
+      }
+    });
+  }
 
   document.getElementById('expenseForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    window.NetoUI?.clearMessage(form);
 
-    await window.NetoApi.createExpense({
-      merchant: form.merchant.value,
-      expenseDate: form.expenseDate.value,
-      originalAmount: Number(form.originalAmount.value),
-      currency: form.currency.value,
-      category: form.category.value,
-      description: form.description.value,
-    });
+    try {
+      await window.NetoApi.createExpense({
+        merchant: form.merchant.value,
+        expenseDate: form.expenseDate.value,
+        originalAmount: Number(form.originalAmount.value),
+        currency: form.currency.value,
+        category: form.category.value,
+        description: form.description.value,
+      });
 
-    form.reset();
-    refreshExpenses();
+      form.reset();
+      refreshExpenses();
+      window.NetoUI?.showMessage(form, 'Gasto guardado correctamente.', 'success');
+    } catch (error) {
+      window.NetoUI?.showMessage(form, error.message || 'No se pudo guardar el gasto.', 'error');
+    }
   });
 
   document.getElementById('ticketForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const file = document.getElementById('ticketFile').files[0];
+    const form = event.currentTarget;
+    window.NetoUI?.clearMessage(form);
+    const file = droppedTicketFile || ticketInput?.files?.[0] || null;
     if (!file) return;
 
     try {
       await window.NetoApi.uploadTicket(file);
-      alert('Ticket procesado y gasto agregado automáticamente.');
-      event.currentTarget.reset();
+      window.NetoUI?.showMessage(form, 'Ticket procesado y gasto agregado automáticamente.', 'success');
+      form.reset();
+      droppedTicketFile = null;
+      renderSelectedTicketName(null);
       refreshExpenses();
     } catch (error) {
-      alert(error.message || 'No se pudo procesar el ticket.');
+      window.NetoUI?.showMessage(form, error.message || 'No se pudo procesar el ticket.', 'error');
     }
-  });
-
-  document.getElementById('budgetForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-
-    await window.NetoApi.createBudget({
-      category: form.budgetCategory.value,
-      limitAmount: Number(form.budgetAmount.value),
-      currency: form.budgetCurrency.value,
-      month: form.budgetMonth.value,
-    });
-
-    form.reset();
-    alert('Presupuesto guardado.');
-  });
-
-  document.getElementById('goalForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-
-    await window.NetoApi.createGoal({
-      title: form.goalTitle.value,
-      targetAmount: Number(form.goalAmount.value),
-      currency: form.goalCurrency.value,
-      deadline: form.goalDeadline.value,
-    });
-
-    form.reset();
-    alert('Meta guardada.');
   });
 
   refreshExpenses();

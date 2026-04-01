@@ -7,15 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
-  <body class="app-shell">
+  <body class="app-shell with-sidebar">
     <header class="topbar">
       <div class="container py-3 dashboard-header">
         <div>
-          <p class="eyebrow mb-1">Gestion de movimientos</p>
-          <h1 class="h3 mb-0">Carga y organizacion de gastos</h1>
+          <p class="eyebrow mb-1">Gestión de movimientos</p>
+          <h1 class="h3 mb-0">Carga y organización de gastos</h1>
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-ghost" onclick="toggleTheme()">Tema</button>
           <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
         </div>
       </div>
@@ -24,66 +23,80 @@
     <nav class="subnav">
       <div class="container d-flex flex-wrap gap-2 py-2">
         <a class="chip" href="dashboard.html">Resumen</a>
-        <a class="chip active" href="expenses.html">Movimientos</a>
-        <a class="chip" href="stats.html">Estadisticas</a>
+        <a class="chip active" href="expenses.html">Cargar Gastos</a>
+        <a class="chip" href="planning.html">Planificación</a>
+        <a class="chip" href="stats.html">Estadísticas</a>
         <a class="chip" href="profile.html">Perfil</a>
       </div>
     </nav>
 
     <main class="container py-4 py-lg-5">
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <section class="panel-card h-100">
-            <h5 class="mb-3">Carga manual</h5>
-            <form id="expenseForm" class="row g-2">
-              <div class="col-sm-6"><input class="form-control form-control-modern" name="merchant" placeholder="Comercio" required /></div>
-              <div class="col-sm-6"><input class="form-control form-control-modern" type="date" name="expenseDate" required /></div>
-              <div class="col-sm-4"><input class="form-control form-control-modern" type="number" step="0.01" name="originalAmount" placeholder="Monto" required /></div>
-              <div class="col-sm-4">
-                <select class="form-select form-control-modern" name="currency"><option>ARS</option><option>USD</option><option>EUR</option></select>
-              </div>
-              <div class="col-sm-4"><input class="form-control form-control-modern" name="category" placeholder="Categoria" required /></div>
-              <div class="col-12"><input class="form-control form-control-modern" name="description" placeholder="Descripcion" /></div>
-              <div class="col-12"><button class="btn btn-neto">Guardar gasto</button></div>
-            </form>
-          </section>
+      <section class="panel-card mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2">
+          <div>
+            <p class="eyebrow mb-1">Centro de gastos</p>
+            <h2 class="h4 mb-0">Cargar gastos y tickets en segundos</h2>
+          </div>
+          <a class="text-link small" href="planning.html">Ir a planificación de metas y presupuestos</a>
         </div>
+      </section>
 
-        <div class="col-lg-6">
-          <section class="panel-card h-100">
-            <h5 class="mb-3">Ticket OCR</h5>
-            <form id="ticketForm" class="row g-2 mb-3">
-              <div class="col-12"><input id="ticketFile" class="form-control form-control-modern" type="file" accept=".jpg,.jpeg,.png,.pdf" required /></div>
-              <div class="col-12"><button class="btn btn-neto">Procesar ticket</button></div>
+      <div class="expenses-layout mb-4">
+        <section class="panel-card h-100">
+          <h5 class="mb-3">Carga manual de gasto</h5>
+          <form id="expenseForm" class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label">Comercio</label>
+              <input class="form-control form-control-modern" name="merchant" placeholder="Ej: Supermercado Central" required />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Fecha</label>
+              <input class="form-control form-control-modern" type="date" name="expenseDate" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Monto</label>
+              <input class="form-control form-control-modern no-spinner" type="number" step="0.01" name="originalAmount" placeholder="0.00" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Moneda</label>
+              <select class="form-select form-control-modern" name="currency"><option>ARS</option><option>USD</option><option>EUR</option></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Categoría</label>
+              <input class="form-control form-control-modern" name="category" placeholder="Ej: Alimentos" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descripción (opcional)</label>
+              <input class="form-control form-control-modern" name="description" placeholder="Detalle adicional del gasto" />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button class="btn btn-neto" type="submit">Guardar gasto</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel-card h-100">
+            <h5 class="mb-3">Carga tu ticket</h5>
+            <form id="ticketForm" class="d-grid gap-2">
+              <label for="ticketFile" id="ticketDropzone" class="expenses-ticket-dropzone">
+                <strong>Arrastra y suelta tu archivo aquí</strong>
+                <small>o haz click para seleccionarlo (JPG, PNG o PDF)</small>
+                <div id="ticketFileName" class="ticket-file-name">Ningún archivo seleccionado</div>
+              </label>
+              <input id="ticketFile" class="d-none" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
+              <button class="btn btn-neto" type="submit">Procesar ticket</button>
             </form>
-            <h5 class="mb-3">Presupuesto mensual</h5>
-            <form id="budgetForm" class="row g-2 mb-3">
-              <div class="col-sm-4"><input class="form-control form-control-modern" name="budgetCategory" placeholder="Categoria" required /></div>
-              <div class="col-sm-4"><input class="form-control form-control-modern" name="budgetAmount" type="number" step="0.01" placeholder="Monto" required /></div>
-              <div class="col-sm-4"><select class="form-select form-control-modern" name="budgetCurrency"><option>ARS</option><option>USD</option><option>EUR</option></select></div>
-              <div class="col-12"><input class="form-control form-control-modern" name="budgetMonth" type="month" required /></div>
-              <div class="col-12"><button class="btn btn-neto">Guardar presupuesto</button></div>
-            </form>
-            <h5 class="mb-3">Meta de ahorro</h5>
-            <form id="goalForm" class="row g-2">
-              <div class="col-sm-6"><input class="form-control form-control-modern" name="goalTitle" placeholder="Meta" required /></div>
-              <div class="col-sm-3"><input class="form-control form-control-modern" name="goalAmount" type="number" step="0.01" required /></div>
-              <div class="col-sm-3"><select class="form-select form-control-modern" name="goalCurrency"><option>ARS</option><option>USD</option><option>EUR</option></select></div>
-              <div class="col-12"><input class="form-control form-control-modern" name="goalDeadline" type="date" required /></div>
-              <div class="col-12"><button class="btn btn-neto">Guardar meta</button></div>
-            </form>
-          </section>
-        </div>
+        </section>
       </div>
 
       <section class="panel-card">
         <div class="section-title mb-3">
           <h5 class="mb-0">Historial de gastos</h5>
-          <span class="text-secondary">Actualizacion en tiempo real</span>
+          <span class="text-secondary">Actualización en tiempo real</span>
         </div>
         <div class="table-responsive">
           <table class="table table-modern align-middle">
-            <thead><tr><th>Fecha</th><th>Comercio</th><th>Categoria</th><th>Original</th><th>ARS</th><th>Fuente</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Comercio</th><th>Categoría</th><th>Original</th><th>ARS</th><th>Fuente</th></tr></thead>
             <tbody id="expensesBody"></tbody>
           </table>
         </div>

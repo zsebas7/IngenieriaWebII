@@ -18,3 +18,37 @@ window.NETO_CONFIG = {
   API_URL: resolveApiUrl(),
   FORMSPREE_ENDPOINT: localStorage.getItem('neto_formspree') || '',
 };
+
+window.NetoUI = {
+  showMessage(target, message, type = 'error') {
+    if (!target) return;
+
+    const host =
+      target instanceof HTMLFormElement
+        ? target
+        : target.closest('form') || target.closest('.panel-card') || target.closest('section') || target;
+
+    if (!host) return;
+
+    let node = host.querySelector('.neto-inline-message');
+    if (!node) {
+      node = document.createElement('div');
+      node.className = 'neto-inline-message';
+      host.prepend(node);
+    }
+
+    node.className = `neto-inline-message neto-inline-message--${type}`;
+    node.textContent = message;
+  },
+  clearMessage(target) {
+    if (!target) return;
+    const host =
+      target instanceof HTMLFormElement
+        ? target
+        : target.closest('form') || target.closest('.panel-card') || target.closest('section') || target;
+    const node = host?.querySelector('.neto-inline-message');
+    if (node) {
+      node.remove();
+    }
+  },
+};

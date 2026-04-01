@@ -1,7 +1,7 @@
 const translations = {
   es: {
     landingTitle: 'Controla tus gastos con inteligencia',
-    landingSubtitle: 'Mira exactamente en que se va tu plata, ajusta tus habitos y llega a fin de mes con tranquilidad.',
+    landingSubtitle: 'Mira exactamente en qué se va tu plata, ajusta tus hábitos y llega a fin de mes con tranquilidad.',
     ctaStart: 'Crear cuenta',
     ctaDemo: 'Probar sin iniciar sesión',
     navFeatures: 'Características',
