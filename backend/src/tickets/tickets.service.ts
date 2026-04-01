@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import FormData from 'form-data';
 import { ExpensesService } from '../expenses/expenses.service';
@@ -8,28 +8,37 @@ export class TicketsService {
   constructor(private readonly expensesService: ExpensesService) {}
 
   async uploadAndProcess(file: Express.Multer.File, userId: string) {
-    if (!file) {
-      throw new BadRequestException('Debe adjuntar un archivo');
-    }
+    try {
+      if (!file) {
+        throw new BadRequestException('Debe adjuntar un archivo');
+      }
 
-    const parsed = await this.processWithOcrSpace(file);
-    if (!parsed) {
-      throw new BadRequestException('No se pudo extraer información confiable del ticket');
-    }
+      const parsed = await this.processWithOcrSpace(file);
+      if (!parsed) {
+        throw new BadRequestException('No se pudo extraer información confiable del ticket');
+      }
 
-    return this.expensesService.create(
-      userId,
-      {
-        merchant: parsed.merchant,
-        expenseDate: parsed.date,
-        originalAmount: parsed.amount,
-        currency: parsed.currency,
-        category: parsed.category,
-        description: 'Gasto detectado automáticamente por OCR',
-      },
-      'ocr',
-      parsed.raw,
-    );
+      return this.expensesService.create(
+        userId,
+        {
+          merchant: parsed.merchant,
+          expenseDate: parsed.date,
+          originalAmount: parsed.amount,
+          currency: parsed.currency,
+          category: parsed.category,
+          description: 'Gasto detectado automáticamente por OCR',
+        },
+        'ocr',
+        parsed.raw,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      const detail = error instanceof Error ? error.message : 'Error interno inesperado';
+      throw new BadRequestException(`No se pudo procesar el ticket: ${detail}`);
+    }
   }
 
   private async processWithOcrSpace(file: Express.Multer.File) {
@@ -53,6 +62,13 @@ export class TicketsService {
       });
     } catch {
       throw new BadRequestException('No se pudo conectar al servicio OCR. Reintente en unos minutos.');
+    }
+
+    const ocrExitCode = Number(response.data?.OCRExitCode ?? 0);
+    if (ocrExitCode !== 1) {
+      const errorMessage =
+        response.data?.ErrorMessage?.[0] || response.data?.ErrorMessage || 'OCR.Space no pudo interpretar el archivo';
+      throw new BadRequestException(`OCR falló: ${errorMessage}`);
     }
 
     const rawText = response.data?.ParsedResults?.[0]?.ParsedText;
