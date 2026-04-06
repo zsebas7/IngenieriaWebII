@@ -2,18 +2,38 @@ function formatArs(value) {
   return `ARS ${Number(value || 0).toFixed(2)}`;
 }
 
+function formatDateDisplay(dateValue) {
+  if (!dateValue) return '-';
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) return dateValue;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    const [year, month, day] = dateValue.split('-');
+    return `${day}/${month}/${year}`;
+  }
+  return new Date(dateValue).toLocaleDateString('es-AR');
+}
+
 function groupExpensesByDay(expenses) {
   const totals = {};
   expenses.forEach((expense) => {
-    const key = expense.expenseDate;
+    const key = /^\d{4}-\d{2}-\d{2}$/.test(expense.expenseDate || '')
+      ? expense.expenseDate
+      : parseDateToIso(expense.expenseDate);
+    if (!key) return;
     totals[key] = (totals[key] || 0) + Number(expense.amountArs || 0);
   });
 
-  const labels = Object.keys(totals).sort();
+  const labels = Object.keys(totals).sort((a, b) => new Date(a) - new Date(b));
   return {
-    labels,
+    labels: labels.map((label) => formatDateDisplay(label)),
     values: labels.map((label) => totals[label]),
   };
+}
+
+function parseDateToIso(value) {
+  const match = String(value || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  return `${year}-${month}-${day}`;
 }
 
 function renderCategoryBreakdown(byCategory) {

@@ -19,6 +19,16 @@ async function loadDashboard() {
   renderBudgetProgress(dashboard.budgetProgress);
 }
 
+function formatDateDisplay(dateValue) {
+  if (!dateValue) return '-';
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) return dateValue;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    const [year, month, day] = dateValue.split('-');
+    return `${day}/${month}/${year}`;
+  }
+  return new Date(dateValue).toLocaleDateString('es-AR');
+}
+
 function renderCategoryChart(byCategory) {
   const ctx = document.getElementById('categoryChart');
   if (!ctx) return;
@@ -71,7 +81,7 @@ function renderExpenses(expenses) {
     .map(
       (expense) => `
       <tr>
-        <td>${expense.expenseDate}</td>
+        <td>${formatDateDisplay(expense.expenseDate)}</td>
         <td>${expense.merchant}</td>
         <td>${expense.category}</td>
         <td>${expense.currency} ${Number(expense.originalAmount).toFixed(2)}</td>
@@ -95,7 +105,7 @@ function renderRecommendations(items) {
     .map(
       (item) => `
       <div class="recommendation-item">
-        <small class="text-secondary">${new Date(item.createdAt).toLocaleString()}</small>
+        <small class="text-secondary">${new Date(item.createdAt).toLocaleString('es-AR')}</small>
         <p class="mb-0">${item.content}</p>
       </div>`,
     )

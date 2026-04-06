@@ -33,6 +33,8 @@ window.NetoApi = {
   myDashboard: (month) => apiRequest(`/dashboard/me?month=${month}`),
   listExpenses: () => apiRequest('/expenses'),
   createExpense: (body) => apiRequest('/expenses', { method: 'POST', body: JSON.stringify(body) }),
+  updateExpense: (id, body) => apiRequest(`/expenses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deleteExpense: (id) => apiRequest(`/expenses/${id}`, { method: 'DELETE' }),
   uploadTicket: async (file) => {
     const form = new FormData();
     form.append('ticket', file);
