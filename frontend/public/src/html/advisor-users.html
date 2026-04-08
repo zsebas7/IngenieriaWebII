@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asesor | NETO</title>
+    <title>Usuarios | Asesor | NETO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
-  <body class="app-shell with-sidebar" data-advisor-page="overview">
+  <body class="app-shell with-sidebar" data-advisor-page="users">
     <header class="topbar">
       <div class="container py-3 dashboard-header">
         <div>
@@ -15,7 +15,7 @@
             <span class="logo-mark" aria-hidden="true" style="width: 28px; height: 28px"></span>
             <p class="eyebrow mb-0">Asesoría financiera</p>
           </div>
-          <h1 class="h3 mb-0">Resumen del asesor</h1>
+          <h1 class="h3 mb-0">Usuarios a asesorar</h1>
         </div>
       </div>
     </header>
@@ -27,13 +27,13 @@
             <path d="M4 7h16M4 12h16M4 17h16"></path>
           </svg>
         </button>
-        <a class="chip active" href="advisor.html" data-label="Resumen" title="Resumen" aria-label="Resumen">
+        <a class="chip" href="advisor.html" data-label="Resumen" title="Resumen" aria-label="Resumen">
           <span class="chip-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3h8v4h-8zM3 21h8v-6H3z"/></svg>
           </span>
           <span class="chip-label">Resumen</span>
         </a>
-        <a class="chip" href="advisor-users.html" data-label="Usuarios" title="Usuarios" aria-label="Usuarios">
+        <a class="chip active" href="advisor-users.html" data-label="Usuarios" title="Usuarios" aria-label="Usuarios">
           <span class="chip-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
@@ -55,51 +55,58 @@
     </nav>
 
     <main class="container py-4 py-lg-5">
-      <section class="hero-panel mb-4 fade-in-up">
-        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
-          <div>
-            <p class="text-secondary mb-1">Vista consolidada de asesoría</p>
-            <h2 class="mb-1">Hola, <span id="advisorWelcomeName">Asesor</span></h2>
-            <p class="mb-0 text-secondary" id="advisorSummaryMeta">Sin datos cargados.</p>
-          </div>
-          <a class="btn btn-neto" href="advisor-users.html">Ir a usuarios</a>
-        </div>
-      </section>
-
-      <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total en ARS</small><div class="kpi" id="advisorKpiTotal">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Usuarios con gasto</small><div class="kpi" id="advisorKpiUsers">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio por usuario</small><div class="kpi" id="advisorKpiAvg">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Categoría dominante</small><div class="kpi" id="advisorKpiTopCategory">-</div></div></div>
-      </div>
-
-      <section class="panel-card fade-in-up mb-4">
+      <section class="panel-card mb-4 fade-in-up">
         <div class="section-title mb-3">
-          <h5 class="mb-0">Distribución de gastos</h5>
-          <span class="text-secondary small">Información general de la cartera</span>
+          <h5 class="mb-0">Usuarios registrados</h5>
+          <span class="text-secondary small" id="advisorUsersResultCount">0 resultados</span>
         </div>
-        <div id="advisorOverviewChartEmpty" class="empty-state d-none">No hay gastos para mostrar en esta vista.</div>
-        <div class="chart-wrap" id="advisorOverviewChartWrap"><canvas id="advisorCategoryChart"></canvas></div>
-      </section>
-
-      <section class="panel-card fade-in-up">
-        <div class="section-title mb-2">
-          <h5 class="mb-0">Próximos pasos</h5>
+        <div class="advisor-filters mb-3">
+          <div>
+            <label class="form-label mb-1" for="advisorSearchInput">Buscar</label>
+            <input id="advisorSearchInput" type="text" class="form-control form-control-modern" placeholder="Nombre o email" />
+          </div>
+          <div>
+            <label class="form-label mb-1" for="advisorRoleFilter">Rol</label>
+            <select id="advisorRoleFilter" class="form-select form-control-modern">
+              <option value="ALL">Todos</option>
+              <option value="USER">USER</option>
+              <option value="ADVISOR">ADVISOR</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label mb-1" for="advisorStatusFilter">Estado</label>
+            <select id="advisorStatusFilter" class="form-select form-control-modern">
+              <option value="ALL">Todos</option>
+              <option value="ACTIVE">Activos</option>
+              <option value="INACTIVE">Inactivos</option>
+            </select>
+          </div>
         </div>
-        <div class="quick-actions-grid">
-          <a class="planning-item text-decoration-none" href="advisor-users.html">
-            <div class="planning-item-title">Ir a lista de usuarios</div>
-            <p class="planning-item-meta mb-0">Buscá y seleccioná a la persona que solicita tu asesoría.</p>
-          </a>
-          <a class="planning-item text-decoration-none" href="advisor-detail.html">
-            <div class="planning-item-title">Abrir detalle de perfil</div>
-            <p class="planning-item-meta mb-0">Filtrá por usuario, analízalo y cargá recomendaciones.</p>
-          </a>
+        <div class="table-responsive">
+          <table class="table table-modern align-middle">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Gastos</th>
+                <th>Total ARS</th>
+                <th class="text-end">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="advisorUsersBody"></tbody>
+          </table>
+        </div>
+        <div class="advisor-pagination">
+          <button class="btn btn-ghost" id="advisorUsersPrev">Anterior</button>
+          <span id="advisorUsersPageInfo" class="text-secondary small">Página 1 de 1</span>
+          <button class="btn btn-ghost" id="advisorUsersNext">Siguiente</button>
         </div>
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
     <script src="../js/nav.js"></script>

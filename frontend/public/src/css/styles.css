@@ -1444,6 +1444,23 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--neto-primary) 25%, transparent);
 }
 
+.advisor-recommendations-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.advisor-recommendation-item {
+  margin-bottom: 0;
+}
+
+.advisor-recommendation-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.45rem;
+}
+
 html {
   scroll-behavior: smooth;
 }
