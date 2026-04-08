@@ -1206,6 +1206,12 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
   gap: 0.8rem;
 }
 
+.planning-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .planning-item-title {
   font-weight: 700;
 }

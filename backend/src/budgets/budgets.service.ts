@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Budget } from '../entities/budget.entity';
 import { User } from '../entities/user.entity';
 import { CreateBudgetDto } from './dto/create-budget.dto';
+import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
 export class BudgetsService {
@@ -23,5 +24,31 @@ export class BudgetsService {
       where: { user: { id: userId } },
       order: { month: 'DESC' },
     });
+  }
+
+  async update(userId: string, budgetId: string, dto: UpdateBudgetDto) {
+    const budget = await this.budgetsRepository.findOne({
+      where: { id: budgetId, user: { id: userId } },
+    });
+
+    if (!budget) {
+      throw new NotFoundException('Presupuesto no encontrado.');
+    }
+
+    Object.assign(budget, dto);
+    return this.budgetsRepository.save(budget);
+  }
+
+  async remove(userId: string, budgetId: string) {
+    const budget = await this.budgetsRepository.findOne({
+      where: { id: budgetId, user: { id: userId } },
+    });
+
+    if (!budget) {
+      throw new NotFoundException('Presupuesto no encontrado.');
+    }
+
+    await this.budgetsRepository.remove(budget);
+    return { success: true };
   }
 }

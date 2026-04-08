@@ -50,6 +50,8 @@ window.NetoApi = {
   },
   listBudgets: () => apiRequest('/budgets'),
   createBudget: (body) => apiRequest('/budgets', { method: 'POST', body: JSON.stringify(body) }),
+  updateBudget: (id, body) => apiRequest(`/budgets/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deleteBudget: (id) => apiRequest(`/budgets/${id}`, { method: 'DELETE' }),
   listGoals: () => apiRequest('/goals'),
   createGoal: (body) => apiRequest('/goals', { method: 'POST', body: JSON.stringify(body) }),
   generateRecommendation: () => apiRequest('/recommendations/generate', { method: 'POST' }),
