@@ -5,6 +5,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -19,6 +20,11 @@ export class UsersController {
   @Patch('me')
   updateMe(@Req() req: { user: { id: string } }, @Body() dto: UpdateProfileDto) {
     return this.usersService.updateMe(req.user.id, dto);
+  }
+
+  @Patch('me/password')
+  changeMyPassword(@Req() req: { user: { id: string } }, @Body() dto: ChangePasswordDto) {
+    return this.usersService.changeMyPassword(req.user.id, dto);
   }
 
   @Roles(Role.ADMIN, Role.ADVISOR)

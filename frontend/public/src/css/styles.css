@@ -171,6 +171,98 @@ h6 {
   backdrop-filter: blur(12px);
 }
 
+.period-picker-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.period-chip {
+  min-width: 220px;
+  min-height: 46px;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--neto-border);
+  background: color-mix(in srgb, var(--neto-card) 96%, transparent);
+  color: var(--neto-text);
+  font-weight: 700;
+  text-align: left;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.period-chip::after {
+  content: '';
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  opacity: 0.8;
+}
+
+.period-chip:hover,
+.period-chip:focus-visible,
+.period-picker-wrap:focus-within .period-chip {
+  border-color: var(--neto-primary-soft);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--neto-primary-soft) 28%, transparent);
+}
+
+.period-chip:active {
+  transform: translateY(1px);
+}
+
+.period-month-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  padding: 0;
+}
+
+.period-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  width: min(320px, calc(100vw - 2rem));
+  border: 1px solid var(--neto-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--neto-card) 98%, transparent);
+  box-shadow: var(--neto-shadow-soft);
+  padding: 0.8rem;
+  z-index: 60;
+}
+
+.period-popover-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.period-popover .form-control-modern,
+.period-popover .form-select.form-control-modern {
+  min-height: 40px;
+}
+
+.period-popover-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 575px) {
+  .period-chip {
+    min-width: 180px;
+  }
+}
+
 .subnav {
   position: fixed;
   top: 0;
@@ -327,6 +419,12 @@ body.app-shell.with-sidebar.sidebar-expanded .subnav {
   margin-top: 0.35rem;
   font-size: clamp(1.1rem, 2.1vw, 1.85rem);
   font-weight: 800;
+}
+
+.kpi-compact {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .eyebrow {
@@ -958,10 +1056,10 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
 .ticket-card {
   display: flex;
   flex-direction: column;
-  min-height: 438px;
 }
 
 .expense-create-form {
+  flex: 1;
   height: 100%;
   align-content: flex-start;
 }
@@ -972,13 +1070,19 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
 }
 
 .expense-form-card {
-  min-height: 438px;
+  display: flex;
+  flex-direction: column;
 }
 
 .ticket-submit-btn {
   position: relative;
   width: 100%;
-  min-height: 46px;
+  margin-top: auto;
+  padding-block: 0.58rem;
+}
+
+.expense-submit-btn {
+  padding-block: 0.58rem;
 }
 
 .ticket-submit-btn.is-loading {
@@ -1102,6 +1206,12 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
   gap: 0.8rem;
 }
 
+.planning-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .planning-item-title {
   font-weight: 700;
 }
@@ -1112,11 +1222,70 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
   color: var(--neto-muted);
 }
 
+.planning-progress {
+  margin-top: 0.5rem;
+}
+
+.planning-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.calendar-input-group .date-picker-trigger {
+  border-color: var(--neto-border);
+  color: var(--neto-muted);
+  background: color-mix(in srgb, var(--neto-card) 92%, transparent);
+}
+
+.calendar-input-group .date-picker-trigger:hover {
+  color: var(--neto-text);
+  background: color-mix(in srgb, var(--neto-card) 86%, var(--neto-border));
+}
+
+.calendar-input-group .date-picker-trigger svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.calendar-hidden-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  padding: 0;
+}
+
+.calendar-input-group input[type='date']::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.calendar-input-group input[type='date']::-webkit-clear-button,
+.calendar-input-group input[type='date']::-webkit-inner-spin-button {
+  display: none;
+}
+
 .status-chip {
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   font-size: 0.75rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.status-chip::before {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .status-chip.good {
@@ -1127,6 +1296,79 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
 .status-chip.warn {
   background: color-mix(in srgb, var(--neto-warning) 20%, transparent);
   color: #b45309;
+}
+
+.status-chip.danger {
+  background: color-mix(in srgb, var(--neto-error) 18%, transparent);
+  color: var(--neto-error);
+}
+
+.budget-progress-value {
+  font-weight: 700;
+  font-size: 0.86rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid transparent;
+}
+
+.budget-progress-value::before {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.budget-progress-value--good {
+  color: var(--neto-success);
+  background: color-mix(in srgb, var(--neto-success) 12%, transparent);
+  border-color: color-mix(in srgb, var(--neto-success) 42%, var(--neto-border));
+}
+
+.budget-progress-value--warn {
+  color: #b45309;
+  background: color-mix(in srgb, var(--neto-warning) 12%, transparent);
+  border-color: color-mix(in srgb, var(--neto-warning) 42%, var(--neto-border));
+}
+
+.budget-progress-value--danger {
+  color: var(--neto-error);
+  background: color-mix(in srgb, var(--neto-error) 12%, transparent);
+  border-color: color-mix(in srgb, var(--neto-error) 42%, var(--neto-border));
+}
+
+.budget-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.budget-progress-item {
+  padding: 0.35rem 0;
+}
+
+.budget-progress-item + .budget-progress-item {
+  margin-top: 0.55rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--neto-border);
+}
+
+.progress-modern .progress-bar.progress-bar--good {
+  background: var(--neto-success);
+}
+
+.progress-modern .progress-bar.progress-bar--warn {
+  background: var(--neto-warning);
+}
+
+.progress-modern .progress-bar.progress-bar--danger {
+  background: var(--neto-error);
 }
 
 @media (min-width: 1200px) {
@@ -1153,6 +1395,12 @@ body.app-shell.with-sidebar.sidebar-expanded main.container {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+}
+
+.breakdown-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .empty-state {

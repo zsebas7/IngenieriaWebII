@@ -1,3 +1,82 @@
+const MONTH_NAMES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+function formatMonthLabel(monthValue) {
+  const match = String(monthValue || '').match(/^(\d{4})-(\d{2})$/);
+  if (!match) return '-';
+  const [, year, month] = match;
+  const monthIndex = Number(month) - 1;
+  if (monthIndex < 0 || monthIndex > 11) return '-';
+  return `${MONTH_NAMES_ES[monthIndex]} ${year}`;
+}
+
+function syncMonthChip() {
+  const monthInput = document.getElementById('monthInput');
+  const monthChip = document.getElementById('monthChip');
+  if (!monthInput || !monthChip) return;
+  const label = formatMonthLabel(monthInput.value);
+  monthChip.textContent = label;
+  monthChip.title = `Período seleccionado: ${label}`;
+}
+
+function ensureYearOptions(yearSelect) {
+  if (!(yearSelect instanceof HTMLSelectElement)) return;
+  if (yearSelect.options.length) return;
+
+  const currentYear = new Date().getFullYear();
+  for (let year = currentYear - 10; year <= currentYear + 5; year += 1) {
+    const option = document.createElement('option');
+    option.value = String(year);
+    option.textContent = String(year);
+    yearSelect.appendChild(option);
+  }
+}
+
+function syncPopoverFromMonthInput() {
+  const monthInput = document.getElementById('monthInput');
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
+
+  ensureYearOptions(yearSelect);
+  const match = String(monthInput.value || '').match(/^(\d{4})-(\d{2})$/);
+  if (!match) return;
+  const [, year, month] = match;
+  yearSelect.value = year;
+  monthSelect.value = month;
+}
+
+function toggleMonthPopover(shouldOpen) {
+  const popover = document.getElementById('monthPopover');
+  if (!(popover instanceof HTMLElement)) return;
+
+  const open = shouldOpen ?? popover.hidden;
+  if (open) {
+    syncPopoverFromMonthInput();
+    popover.hidden = false;
+    return;
+  }
+
+  popover.hidden = true;
+}
+
+async function applyMonthFromPopover() {
+  const monthInput = document.getElementById('monthInput');
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
+
+  const nextValue = `${yearSelect.value}-${monthSelect.value}`;
+  if (monthInput.value === nextValue) {
+    toggleMonthPopover(false);
+    return;
+  }
+
+  monthInput.value = nextValue;
+  syncMonthChip();
+  toggleMonthPopover(false);
+  await loadDashboard();
+}
+
 async function loadDashboard() {
   window.NetoAuth.requireAuth();
   const user = window.NetoAuth.getCurrentUser();
@@ -116,27 +195,82 @@ function renderBudgetProgress(items) {
   const list = document.getElementById('budgetProgress');
   if (!list) return;
 
+  if (!Array.isArray(items) || items.length === 0) {
+    list.innerHTML = '<p class="text-secondary mb-0">No hay presupuestos cargados para este mes.</p>';
+    return;
+  }
+
   list.innerHTML = items
-    .map(
-      (item) => `
-      <div class="mb-2">
-        <div class="d-flex justify-content-between">
+    .map((item) => {
+      const limitAmount = Number(item.limitAmount || 0);
+      const usedAmount = Number(item.used || 0);
+      const remainingAmount = Math.max(limitAmount - usedAmount, 0);
+      const overAmount = Math.max(usedAmount - limitAmount, 0);
+      const ratio = limitAmount > 0 ? usedAmount / limitAmount : 0;
+      const progressPercent = Math.max(0, Math.min(ratio * 100, 100));
+
+      let statusClass = 'budget-progress-value--good';
+      let progressBarClass = 'progress-bar--good';
+      let statusLabel = `Margen hasta el limite: ARS ${remainingAmount.toFixed(2)}`;
+
+      if (ratio > 1) {
+        statusClass = 'budget-progress-value--danger';
+        progressBarClass = 'progress-bar--danger';
+        statusLabel = `Exceso sobre el limite: ARS ${overAmount.toFixed(2)}`;
+      } else if (ratio >= 0.85) {
+        statusClass = 'budget-progress-value--warn';
+        progressBarClass = 'progress-bar--warn';
+        statusLabel = `Margen restante critico: ARS ${remainingAmount.toFixed(2)}`;
+      }
+
+        return `
+        <div class="budget-progress-item">
+          <div class="budget-progress-row">
           <span>${item.category}</span>
-          <span>${item.progressPercent.toFixed(1)}%</span>
+          <span class="budget-progress-value ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="progress progress-modern">
-          <div class="progress-bar" style="width:${Math.min(item.progressPercent, 100)}%"></div>
+          <div class="progress progress-modern">
+            <div class="progress-bar ${progressBarClass}" style="width:${progressPercent}%"></div>
         </div>
-      </div>`,
-    )
+      </div>`;
+    })
     .join('');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const monthInput = document.getElementById('monthInput');
   monthInput.value = new Date().toISOString().slice(0, 7);
+  syncMonthChip();
 
-  document.getElementById('reloadDashboard')?.addEventListener('click', loadDashboard);
+  const monthChip = document.getElementById('monthChip');
+  monthChip?.addEventListener('click', () => toggleMonthPopover());
+
+  document.getElementById('cancelMonthBtn')?.addEventListener('click', () => {
+    toggleMonthPopover(false);
+  });
+
+  document.getElementById('applyMonthBtn')?.addEventListener('click', async () => {
+    await applyMonthFromPopover();
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const wrap = document.querySelector('.period-picker-wrap');
+    if (!(wrap instanceof HTMLElement)) return;
+    if (wrap.contains(target)) return;
+    toggleMonthPopover(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    toggleMonthPopover(false);
+  });
+
+  monthInput.addEventListener('change', async () => {
+    syncMonthChip();
+    await loadDashboard();
+  });
 
   document.getElementById('generateRecommendation')?.addEventListener('click', async () => {
     await window.NetoApi.generateRecommendation();

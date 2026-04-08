@@ -27,6 +27,15 @@ function parseDateToApi(input) {
   return `${year}-${month}-${day}`;
 }
 
+function formatDateForInput(dateValue) {
+  const value = String(dateValue || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return '';
+  const [, day, month, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
 function maskDateInputValue(value) {
   const digits = String(value || '').replace(/\D/g, '').slice(0, 8);
   if (digits.length <= 2) return digits;
@@ -41,6 +50,54 @@ function applyDateMasks(root = document) {
       const masked = maskDateInputValue(input.value);
       if (input.value !== masked) {
         input.value = masked;
+      }
+    });
+  });
+}
+
+function setupDatePickerTriggers(root = document) {
+  const triggerButtons = root.querySelectorAll('.date-picker-trigger[data-target]');
+  triggerButtons.forEach((button) => {
+    if (button.dataset.bound === 'true') return;
+    button.dataset.bound = 'true';
+
+    const targetId = button.dataset.target;
+    const syncId = button.dataset.sync;
+
+    if (targetId && syncId) {
+      const pickerInput = document.getElementById(targetId);
+      if (pickerInput instanceof HTMLInputElement) {
+        pickerInput.addEventListener('change', () => {
+          const visibleInput = document.getElementById(syncId);
+          if (!(visibleInput instanceof HTMLInputElement)) return;
+
+          const selected = pickerInput.value;
+          if (!selected) return;
+          const [year, month, day] = selected.split('-');
+          visibleInput.value = `${day}/${month}/${year}`;
+        });
+      }
+    }
+
+    button.addEventListener('click', () => {
+      if (!targetId) return;
+
+      const input = document.getElementById(targetId);
+      if (!(input instanceof HTMLInputElement)) return;
+
+      if (syncId) {
+        const visibleInput = document.getElementById(syncId);
+        if (visibleInput instanceof HTMLInputElement) {
+          const currentApiDate = parseDateToApi(visibleInput.value);
+          if (currentApiDate) {
+            input.value = currentApiDate;
+          }
+        }
+      }
+
+      input.focus();
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
       }
     });
   });
@@ -147,6 +204,10 @@ async function handleEditExpenseClick(button) {
   editingExpenseId = expenseId;
   form.merchant.value = button.dataset.merchant || '';
   form.expenseDate.value = formatDateDisplay(button.dataset.date || '');
+  const hiddenPicker = document.getElementById('editExpenseDatePicker');
+  if (hiddenPicker instanceof HTMLInputElement) {
+    hiddenPicker.value = formatDateForInput(button.dataset.date || '');
+  }
   form.originalAmount.value = button.dataset.amount || '0.00';
   form.currency.value = button.dataset.currency || 'ARS';
   ensureSelectHasOption(form.category, button.dataset.category || '');
@@ -192,6 +253,7 @@ async function handleDeleteExpenseClick(button) {
 document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
   applyDateMasks();
+  setupDatePickerTriggers();
   const expenseForm = document.getElementById('expenseForm');
   const editExpenseForm = document.getElementById('editExpenseForm');
   const editExpenseModal = document.getElementById('editExpenseModal');
@@ -311,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (!payload.expenseDate) {
-        showExpensesToast('Fecha inválida. Usa formato dd/mm/aaaa.', 'error');
+        showExpensesToast('Fecha inválida. Selecciona una fecha válida.', 'error');
         return;
       }
 
@@ -339,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const apiDate = parseDateToApi(form.expenseDate.value);
       if (!apiDate) {
-        showExpensesToast('Fecha inválida. Usa formato dd/mm/aaaa.', 'error');
+        showExpensesToast('Fecha inválida. Selecciona una fecha válida.', 'error');
         return;
       }
 

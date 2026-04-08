@@ -14,9 +14,6 @@
           <p class="eyebrow mb-1">Cuenta</p>
           <h1 class="h3 mb-0">Perfil y preferencias</h1>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
-        </div>
       </div>
     </header>
 
@@ -89,14 +86,54 @@
                 <a class="btn btn-outline-secondary" href="dashboard.html">Volver al resumen</a>
               </div>
             </form>
+
+            <hr class="my-4" />
+
+            <h5 class="mb-3">Seguridad</h5>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-neto" id="openPasswordModal" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Cambiar contraseña</button>
+              <button class="btn btn-outline-danger" id="logoutFromProfile" type="button">Cerrar sesión</button>
+            </div>
           </section>
         </div>
       </div>
     </main>
 
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content panel-card">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Cambiar contraseña</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <form id="passwordForm" class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Contraseña actual</label>
+                <input class="form-control form-control-modern" name="currentPassword" type="password" required />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Nueva contraseña</label>
+                <input class="form-control form-control-modern" name="newPassword" type="password" minlength="8" required />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Confirmar nueva contraseña</label>
+                <input class="form-control form-control-modern" name="confirmPassword" type="password" minlength="8" required />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-neto" type="submit">Guardar nueva contraseña</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
     <script src="../js/nav.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/profile.js"></script>
