@@ -56,6 +56,7 @@ window.NetoApi = {
   listRecommendations: () => apiRequest('/recommendations'),
   myProfile: () => apiRequest('/users/me'),
   updateMyProfile: (body) => apiRequest('/users/me', { method: 'PATCH', body: JSON.stringify(body) }),
+  changeMyPassword: (body) => apiRequest('/users/me/password', { method: 'PATCH', body: JSON.stringify(body) }),
   listUsers: () => apiRequest('/users'),
   updateUserRole: (id, role) => apiRequest(`/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) }),
   updateUserActive: (id, isActive) =>

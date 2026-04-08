@@ -13,7 +13,9 @@ function formatDateDisplay(dateValue) {
 }
 
 function parseDateToApi(input) {
-  const match = String(input || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  const value = String(input || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return null;
   const [, day, month, year] = match;
   return `${year}-${month}-${day}`;
@@ -38,10 +40,139 @@ function applyDateMasks(root = document) {
   });
 }
 
+function fillBudgetMonthOptions() {
+  const monthSelect = document.getElementById('budgetMonthSelect');
+  const yearSelect = document.getElementById('budgetYearSelect');
+  if (!(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
+
+  if (monthSelect.options.length > 1 || yearSelect.options.length > 1) return;
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  monthNames.forEach((label, index) => {
+    const monthNumber = String(index + 1).padStart(2, '0');
+    const option = document.createElement('option');
+    option.value = monthNumber;
+    option.textContent = label;
+    if (index + 1 === currentMonth) {
+      option.selected = true;
+      option.defaultSelected = true;
+    }
+    monthSelect.appendChild(option);
+  });
+
+  for (let year = currentYear - 1; year <= currentYear + 1; year += 1) {
+    const option = document.createElement('option');
+    option.value = String(year);
+    option.textContent = String(year);
+    if (year === currentYear) {
+      option.selected = true;
+      option.defaultSelected = true;
+    }
+    yearSelect.appendChild(option);
+  }
+}
+
+function setupDatePickerTriggers(root = document) {
+  const triggerButtons = root.querySelectorAll('.date-picker-trigger[data-target]');
+  triggerButtons.forEach((button) => {
+    if (button.dataset.bound === 'true') return;
+    button.dataset.bound = 'true';
+
+    const targetId = button.dataset.target;
+    const syncId = button.dataset.sync;
+
+    if (targetId && syncId) {
+      const pickerInput = document.getElementById(targetId);
+      if (pickerInput instanceof HTMLInputElement) {
+        pickerInput.addEventListener('change', () => {
+          const visibleInput = document.getElementById(syncId);
+          if (!(visibleInput instanceof HTMLInputElement)) return;
+
+          const selected = pickerInput.value;
+          if (!selected) return;
+          const [year, month, day] = selected.split('-');
+          visibleInput.value = `${day}/${month}/${year}`;
+        });
+      }
+    }
+
+    button.addEventListener('click', () => {
+      if (!targetId) return;
+
+      const input = document.getElementById(targetId);
+      if (!(input instanceof HTMLInputElement)) return;
+
+      if (syncId) {
+        const visibleInput = document.getElementById(syncId);
+        if (visibleInput instanceof HTMLInputElement) {
+          const currentApiDate = parseDateToApi(visibleInput.value);
+          if (currentApiDate) {
+            input.value = currentApiDate;
+          }
+        }
+      }
+
+      input.focus();
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+      }
+    });
+  });
+}
+
 function formatMonthDisplay(value) {
   const match = String(value || '').match(/^(\d{4})-(\d{2})$/);
   if (!match) return value || '-';
   return `${match[2]}/${match[1]}`;
+}
+
+function getExpenseMonthKey(expenseDate) {
+  const value = String(expenseDate || '').trim();
+  const apiMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (apiMatch) {
+    const [, year, month] = apiMatch;
+    return `${year}-${month}`;
+  }
+
+  const localMatch = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (localMatch) {
+    const [, , month, year] = localMatch;
+    return `${year}-${month}`;
+  }
+
+  return '';
+}
+
+function normalizeCategory(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function mergeBudgetSpentFromExpenses(budgets, expenses) {
+  if (!Array.isArray(budgets)) return [];
+  if (!Array.isArray(expenses) || expenses.length === 0) {
+    return budgets.map((budget) => ({ ...budget, spentAmount: Number(budget.spentAmount || 0) }));
+  }
+
+  return budgets.map((budget) => {
+    const budgetMonth = String(budget.month || '').trim();
+    const budgetCategory = normalizeCategory(budget.category);
+
+    const spentAmount = expenses.reduce((acc, expense) => {
+      const expenseMonth = getExpenseMonthKey(expense.expenseDate);
+      const expenseCategory = normalizeCategory(expense.category);
+      if (expenseMonth !== budgetMonth || expenseCategory !== budgetCategory) return acc;
+      return acc + Number(expense.amountArs || 0);
+    }, 0);
+
+    return {
+      ...budget,
+      spentAmount,
+    };
+  });
 }
 
 function renderBudgetList(budgets) {
@@ -58,8 +189,13 @@ function renderBudgetList(budgets) {
       const spent = Number(budget.spentAmount || 0);
       const limit = Number(budget.limitAmount || 0);
       const ratio = limit > 0 ? spent / limit : 0;
-      const statusClass = ratio <= 0.8 ? 'good' : 'warn';
-      const statusText = ratio <= 0.8 ? 'En rango' : 'Al limite';
+      const rawPercent = Math.max(ratio * 100, 0);
+      const progressPercent = Math.min(rawPercent, 100);
+      const isOverLimit = ratio > 1;
+      const isNearLimit = !isOverLimit && ratio >= 0.85;
+      const statusClass = isOverLimit ? 'danger' : isNearLimit ? 'warn' : 'good';
+      const statusText = isOverLimit ? 'Limite excedido' : isNearLimit ? 'Limite proximo' : 'Dentro del limite';
+      const progressBarClass = isOverLimit ? 'progress-bar--danger' : isNearLimit ? 'progress-bar--warn' : 'progress-bar--good';
 
       return `
         <article class="planning-item">
@@ -69,6 +205,15 @@ function renderBudgetList(budgets) {
           </div>
           <div class="planning-item-meta">Mes: ${formatMonthDisplay(budget.month)} | Limite: ${formatMoney(budget.currency || 'ARS', limit)}</div>
           <div class="planning-item-meta">Gastado: ${formatMoney('ARS', spent)}</div>
+          <div class="planning-progress">
+            <div class="planning-progress-row">
+              <span class="planning-item-meta">Uso del limite</span>
+              <span class="planning-item-meta">${rawPercent.toFixed(1)}%</span>
+            </div>
+            <div class="progress progress-modern">
+              <div class="progress-bar ${progressBarClass}" style="width:${progressPercent}%"></div>
+            </div>
+          </div>
         </article>
       `;
     })
@@ -101,10 +246,17 @@ function renderGoalList(goals) {
 }
 
 async function refreshPlanningData() {
-  const [budgetsResult, goalsResult] = await Promise.allSettled([window.NetoApi.listBudgets(), window.NetoApi.listGoals()]);
+  const [budgetsResult, goalsResult, expensesResult] = await Promise.allSettled([
+    window.NetoApi.listBudgets(),
+    window.NetoApi.listGoals(),
+    window.NetoApi.listExpenses(),
+  ]);
 
   if (budgetsResult.status === 'fulfilled') {
-    renderBudgetList(budgetsResult.value || []);
+    const budgets = budgetsResult.value || [];
+    const expenses = expensesResult.status === 'fulfilled' ? expensesResult.value || [] : [];
+    const enrichedBudgets = mergeBudgetSpentFromExpenses(budgets, expenses);
+    renderBudgetList(enrichedBudgets);
   } else {
     renderBudgetList([]);
   }
@@ -119,6 +271,8 @@ async function refreshPlanningData() {
 document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
   applyDateMasks();
+  fillBudgetMonthOptions();
+  setupDatePickerTriggers();
 
   document.getElementById('budgetForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -126,11 +280,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.NetoUI?.clearMessage(form);
 
     try {
+        const selectedMonth = form.budgetMonthSelect.value;
+        const selectedYear = form.budgetYearSelect.value;
+        const monthValue = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : '';
+
       await window.NetoApi.createBudget({
         category: form.budgetCategory.value,
         limitAmount: Number(form.budgetAmount.value),
         currency: form.budgetCurrency.value,
-        month: form.budgetMonth.value,
+          month: monthValue,
       });
       form.reset();
       window.NetoUI?.showMessage(form, 'Presupuesto guardado.', 'success');
@@ -148,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const apiDeadline = parseDateToApi(form.goalDeadline.value);
       if (!apiDeadline) {
-        window.NetoUI?.showMessage(form, 'Fecha inválida. Usa formato dd/mm/aaaa.', 'error');
+        window.NetoUI?.showMessage(form, 'Fecha inválida. Selecciona una fecha válida.', 'error');
         return;
       }
 

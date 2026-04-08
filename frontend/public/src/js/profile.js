@@ -5,6 +5,26 @@ function updateTopSummary(user) {
   document.getElementById('profileStatus').textContent = user.isActive ? 'Activo' : 'Inactivo';
 }
 
+function showProfileToast(message, type = 'success') {
+  let stack = document.getElementById('profileToastStack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'profileToastStack';
+    stack.className = 'neto-toast-stack';
+    document.body.appendChild(stack);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `neto-toast ${type}`;
+  toast.textContent = message;
+  stack.appendChild(toast);
+
+  window.setTimeout(() => {
+    toast.classList.add('is-leaving');
+    window.setTimeout(() => toast.remove(), 220);
+  }, 2300);
+}
+
 function fillForm(user) {
   const form = document.getElementById('profileForm');
   form.fullName.value = user.fullName || '';
@@ -26,6 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
 
   const form = document.getElementById('profileForm');
+  const passwordForm = document.getElementById('passwordForm');
+  const passwordModal = document.getElementById('changePasswordModal');
+  const logoutBtn = document.getElementById('logoutFromProfile');
+
+  logoutBtn?.addEventListener('click', () => {
+    window.NetoAuth.logout();
+  });
+
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
     window.NetoUI?.clearMessage(form);
@@ -43,11 +71,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
       localStorage.setItem('neto_user', JSON.stringify(payload));
       updateTopSummary(payload);
-      window.NetoUI?.showMessage(form, 'Perfil actualizado correctamente.', 'success');
+      window.NetoUI?.clearMessage(form);
+      showProfileToast('Perfil actualizado correctamente.', 'success');
     } catch (error) {
-      window.NetoUI?.showMessage(form, error.message || 'No se pudo actualizar el perfil.', 'error');
+      showProfileToast(error.message || 'No se pudo actualizar el perfil.', 'error');
     }
   });
+
+  passwordForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const currentPassword = passwordForm.currentPassword.value;
+    const newPassword = passwordForm.newPassword.value;
+    const confirmPassword = passwordForm.confirmPassword.value;
+
+    if (newPassword.length < 8) {
+      showProfileToast('La nueva contraseña debe tener al menos 8 caracteres.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showProfileToast('La confirmación de contraseña no coincide.', 'error');
+      return;
+    }
+
+    try {
+      await window.NetoApi.changeMyPassword({
+        currentPassword,
+        newPassword,
+      });
+      passwordForm.reset();
+      if (passwordModal && typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getOrCreateInstance(passwordModal).hide();
+      }
+      showProfileToast('Contraseña actualizada correctamente.', 'success');
+    } catch (error) {
+      showProfileToast(error.message || 'No se pudo actualizar la contraseña.', 'error');
+    }
+  });
+
+  if (passwordModal) {
+    passwordModal.addEventListener('hidden.bs.modal', () => {
+      if (passwordForm instanceof HTMLFormElement) {
+        passwordForm.reset();
+      }
+    });
+  }
 
   loadProfile();
 });

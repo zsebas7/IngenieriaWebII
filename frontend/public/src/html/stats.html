@@ -14,10 +14,38 @@
           <p class="eyebrow mb-1">Analítica</p>
           <h1 class="h3 mb-0">Estadísticas detalladas</h1>
         </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-          <input class="form-control form-control-modern" id="monthInput" type="month" />
-          <button class="btn btn-neto" id="reloadStats">Actualizar</button>
-          <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
+        <div class="period-picker-wrap">
+          <button class="period-chip" id="monthChip" type="button" aria-label="Seleccionar período">-</button>
+          <input class="form-control form-control-modern period-month-input" id="monthInput" type="month" aria-label="Seleccionar mes" />
+          <div class="period-popover" id="monthPopover" hidden>
+            <div class="period-popover-grid">
+              <div>
+                <label class="form-label mb-1" for="monthSelect">Mes</label>
+                <select class="form-select form-control-modern" id="monthSelect" aria-label="Mes">
+                  <option value="01">Enero</option>
+                  <option value="02">Febrero</option>
+                  <option value="03">Marzo</option>
+                  <option value="04">Abril</option>
+                  <option value="05">Mayo</option>
+                  <option value="06">Junio</option>
+                  <option value="07">Julio</option>
+                  <option value="08">Agosto</option>
+                  <option value="09">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label mb-1" for="yearSelect">Año</label>
+                <select class="form-select form-control-modern" id="yearSelect" aria-label="Año"></select>
+              </div>
+            </div>
+            <div class="period-popover-actions">
+              <button class="btn btn-outline-secondary" id="cancelMonthBtn" type="button">Cancelar</button>
+              <button class="btn btn-neto" id="applyMonthBtn" type="button">Aplicar</button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -58,6 +86,10 @@
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio</small><div class="kpi" id="kpiAverage">-</div></div></div>
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Transacciones</small><div class="kpi" id="kpiTransactions">-</div></div></div>
         <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="kpiCategory">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Gasto más alto</small><div class="kpi" id="kpiMaxExpense">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Día más caro</small><div class="kpi kpi-compact" id="kpiPeakDay">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Categorías activas</small><div class="kpi" id="kpiCategories">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Días con movimientos</small><div class="kpi" id="kpiActiveDays">-</div></div></div>
       </div>
 
       <div class="row g-3 mb-4">
@@ -66,12 +98,107 @@
       </div>
 
       <section class="panel-card">
-        <h5 class="mb-3">Detalle por categoría</h5>
+        <div class="section-title mb-3">
+          <h5 class="mb-0">Detalle por categoría</h5>
+          <span class="text-secondary small">Abre cada categoría para ver y gestionar sus gastos</span>
+        </div>
         <div id="categoryBreakdown"></div>
       </section>
     </main>
 
+    <div class="modal fade" id="categoryDetailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content panel-card">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Gastos de <span id="categoryDetailTitle">-</span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <div class="table-responsive">
+              <table class="table table-modern align-middle mb-0">
+                <thead><tr><th>Fecha</th><th>Comercio</th><th>Original</th><th>ARS</th><th>Fuente</th><th>Acciones</th></tr></thead>
+                <tbody id="categoryExpensesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editCategoryExpenseModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content panel-card">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Editar gasto de categoría</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <form id="editCategoryExpenseForm" class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label">Comercio</label>
+                <input class="form-control form-control-modern" name="merchant" required />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Fecha</label>
+                <input class="form-control form-control-modern" type="text" name="expenseDate" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" inputmode="numeric" maxlength="10" data-date-mask="ddmmyyyy" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Monto</label>
+                <input class="form-control form-control-modern no-spinner" type="number" step="0.01" name="originalAmount" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Moneda</label>
+                <select class="form-select form-control-modern" name="currency"><option>ARS</option><option>USD</option><option>EUR</option></select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Categoría</label>
+                <select class="form-select form-control-modern" name="category" required>
+                  <option value="">Seleccionar</option>
+                  <option>Alimentos</option>
+                  <option>Entretenimiento</option>
+                  <option>Transporte</option>
+                  <option>Salud</option>
+                  <option>Educación</option>
+                  <option>Servicios</option>
+                  <option>Hogar</option>
+                  <option>Otros</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descripción (opcional)</label>
+                <input class="form-control form-control-modern" name="description" />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-neto" type="submit">Guardar cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="deleteCategoryExpenseModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content panel-card">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Confirmar borrado</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <p class="mb-2">¿Seguro que querés borrar este gasto?</p>
+            <div id="deleteCategoryExpenseSummary" class="empty-state py-2 mb-3">Este cambio no se puede deshacer.</div>
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+              <button id="confirmDeleteCategoryExpenseBtn" class="btn btn-danger" type="button">Borrar gasto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
     <script src="../js/nav.js"></script>
