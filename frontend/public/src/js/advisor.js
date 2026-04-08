@@ -17,7 +17,6 @@ const advisorState = {
     detailUserSearch: '',
   },
   charts: {
-    overviewCategory: null,
     detailCategory: null,
     detailTrend: null,
   },
@@ -233,48 +232,6 @@ function getSelectedUserExpenses() {
     .sort((a, b) => new Date(b.expenseDate) - new Date(a.expenseDate));
 }
 
-function renderOverviewCategoryChart(expenses) {
-  const empty = document.getElementById('advisorOverviewChartEmpty');
-  const wrap = document.getElementById('advisorOverviewChartWrap');
-  const canvas = document.getElementById('advisorCategoryChart');
-
-  destroyChart('overviewCategory');
-
-  if (!canvas || !empty || !wrap) return;
-
-  const byCategory = groupByCategory(expenses);
-  const labels = Object.keys(byCategory);
-
-  if (!labels.length) {
-    empty.classList.remove('d-none');
-    wrap.classList.add('d-none');
-    return;
-  }
-
-  empty.classList.add('d-none');
-  wrap.classList.remove('d-none');
-
-  const palette = getChartPalette();
-  advisorState.charts.overviewCategory = new Chart(canvas, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [
-        {
-          data: labels.map((label) => byCategory[label]),
-          backgroundColor: palette.donut,
-          borderWidth: 0,
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        legend: { labels: { color: palette.axis } },
-      },
-    },
-  });
-}
-
 function renderOverviewPage() {
   if (!isOverviewPage()) return;
 
@@ -303,8 +260,6 @@ function renderOverviewPage() {
   if (kpiUsers) kpiUsers.textContent = String(usersWithExpenses);
   if (kpiAvg) kpiAvg.textContent = formatArs(avgPerUser);
   if (kpiTopCategory) kpiTopCategory.textContent = topCategory;
-
-  renderOverviewCategoryChart(advisorState.expenses);
 }
 
 function renderUsersTable() {
