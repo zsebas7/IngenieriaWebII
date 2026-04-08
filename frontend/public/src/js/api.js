@@ -31,7 +31,18 @@ window.NetoApi = {
   login: (body) => apiRequest('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   forgotPassword: (body) => apiRequest('/auth/forgot-password', { method: 'POST', body: JSON.stringify(body) }),
   myDashboard: (month) => apiRequest(`/dashboard/me?month=${month}`),
-  listExpenses: () => apiRequest('/expenses'),
+  listExpenses: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.month) {
+      params.set('month', filters.month);
+    }
+    if (filters.category) {
+      params.set('category', filters.category);
+    }
+
+    const query = params.toString();
+    return apiRequest(`/expenses${query ? `?${query}` : ''}`);
+  },
   createExpense: (body) => apiRequest('/expenses', { method: 'POST', body: JSON.stringify(body) }),
   updateExpense: (id, body) => apiRequest(`/expenses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteExpense: (id) => apiRequest(`/expenses/${id}`, { method: 'DELETE' }),

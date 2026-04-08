@@ -7,38 +7,233 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
-  <body class="app-shell">
+  <body class="app-shell with-sidebar">
     <header class="topbar">
       <div class="container py-3 dashboard-header">
         <div>
-          <p class="eyebrow mb-1">Asesoría</p>
-          <h1 class="h3 mb-0">Vista de usuarios</h1>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="logo-mark" aria-hidden="true" style="width: 28px; height: 28px"></span>
+            <p class="eyebrow mb-0">Asesoría financiera</p>
+          </div>
+          <h1 class="h3 mb-0">Panel del asesor</h1>
         </div>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <input class="form-control form-control-modern" id="advisorMonthInput" type="month" />
+          <select class="form-select form-control-modern" id="advisorCategoryFilter">
+            <option value="ALL">Todas las categorías</option>
+          </select>
+          <button class="btn btn-neto" id="advisorReloadBtn">Actualizar</button>
+          <button class="btn btn-ghost" onclick="toggleTheme()" aria-label="Cambiar tema"></button>
           <button class="btn btn-outline-danger" onclick="NetoAuth.logout()">Salir</button>
         </div>
       </div>
     </header>
 
+    <nav class="subnav">
+      <div class="container d-flex flex-wrap gap-2 py-2">
+        <button id="navToggle" class="subnav-toggle" type="button" aria-expanded="false" aria-label="Mostrar u ocultar etiquetas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+        </button>
+        <a class="chip active advisor-nav-chip" href="#advisorOverview" data-label="Resumen" title="Resumen" aria-label="Resumen">
+          <span class="chip-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3h8v4h-8zM3 21h8v-6H3z"/></svg>
+          </span>
+          <span class="chip-label">Resumen</span>
+        </a>
+        <a class="chip advisor-nav-chip" href="#advisorUsers" data-label="Usuarios" title="Usuarios" aria-label="Usuarios">
+          <span class="chip-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="chip-label">Usuarios</span>
+        </a>
+        <a class="chip advisor-nav-chip" href="#advisorDetail" data-label="Detalle" title="Detalle" aria-label="Detalle de usuario">
+          <span class="chip-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 3h5v5"/><path d="M21 3l-7 7"/></svg>
+          </span>
+          <span class="chip-label">Detalle</span>
+        </a>
+      </div>
+    </nav>
+
     <main class="container py-4 py-lg-5">
-      <section class="panel-card fade-in-up">
+      <section id="advisorOverview" class="hero-panel mb-4 fade-in-up">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+          <div>
+            <p class="text-secondary mb-1">Vista consolidada de asesoría</p>
+            <h2 class="mb-1">Hola, <span id="advisorWelcomeName">Asesor</span></h2>
+            <p class="mb-0 text-secondary" id="advisorSummaryMeta">Sin datos cargados.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total en ARS</small><div class="kpi" id="advisorKpiTotal">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Usuarios con gasto</small><div class="kpi" id="advisorKpiUsers">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio por usuario</small><div class="kpi" id="advisorKpiAvg">-</div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Categoría dominante</small><div class="kpi" id="advisorKpiTopCategory">-</div></div></div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+          <section class="panel-card h-100">
+            <div class="section-title mb-3">
+              <h5 class="mb-0">Distribución por categoría</h5>
+              <span class="text-secondary small">Mes seleccionado</span>
+            </div>
+            <div id="advisorOverviewChartEmpty" class="empty-state d-none">No hay gastos para mostrar en esta vista.</div>
+            <div class="chart-wrap" id="advisorOverviewChartWrap"><canvas id="advisorCategoryChart"></canvas></div>
+          </section>
+        </div>
+        <div class="col-lg-5">
+          <section class="panel-card h-100">
+            <div class="section-title mb-3">
+              <h5 class="mb-0">Usuarios con mayor gasto</h5>
+              <span class="text-secondary small">Top 5</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-modern align-middle mb-0">
+                <thead><tr><th>Usuario</th><th>Gastos</th><th>Total ARS</th></tr></thead>
+                <tbody id="advisorTopUsersBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <section id="advisorUsers" class="panel-card mb-4 fade-in-up">
         <div class="section-title mb-3">
           <h5 class="mb-0">Usuarios registrados</h5>
-          <span class="text-secondary small">Panel de consulta</span>
+          <span class="text-secondary small" id="advisorUsersResultCount">0 resultados</span>
+        </div>
+        <div class="advisor-filters mb-3">
+          <div>
+            <label class="form-label mb-1" for="advisorSearchInput">Buscar</label>
+            <input id="advisorSearchInput" type="text" class="form-control form-control-modern" placeholder="Nombre o email" />
+          </div>
+          <div>
+            <label class="form-label mb-1" for="advisorRoleFilter">Rol</label>
+            <select id="advisorRoleFilter" class="form-select form-control-modern">
+              <option value="ALL">Todos</option>
+              <option value="USER">USER</option>
+              <option value="ADVISOR">ADVISOR</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label mb-1" for="advisorStatusFilter">Estado</label>
+            <select id="advisorStatusFilter" class="form-select form-control-modern">
+              <option value="ALL">Todos</option>
+              <option value="ACTIVE">Activos</option>
+              <option value="INACTIVE">Inactivos</option>
+            </select>
+          </div>
         </div>
         <div class="table-responsive">
           <table class="table table-modern align-middle">
             <thead>
-              <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th></tr>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Gastos</th>
+                <th>Total ARS</th>
+                <th class="text-end">Acción</th>
+              </tr>
             </thead>
             <tbody id="advisorUsersBody"></tbody>
           </table>
         </div>
+        <div class="advisor-pagination">
+          <button class="btn btn-ghost" id="advisorUsersPrev">Anterior</button>
+          <span id="advisorUsersPageInfo" class="text-secondary small">Página 1 de 1</span>
+          <button class="btn btn-ghost" id="advisorUsersNext">Siguiente</button>
+        </div>
+      </section>
+
+      <section id="advisorDetail" class="panel-card fade-in-up">
+        <div class="section-title mb-3">
+          <h5 class="mb-0">Detalle de usuario</h5>
+          <span class="text-secondary small">Vista de solo lectura</span>
+        </div>
+
+        <div id="advisorDetailEmpty" class="empty-state">Seleccioná un usuario para ver su detalle financiero.</div>
+
+        <div id="advisorDetailContent" class="d-none">
+          <div class="advisor-detail-head mb-3">
+            <div>
+              <h4 class="mb-1" id="advisorDetailName">-</h4>
+              <p class="text-secondary mb-0" id="advisorDetailEmail">-</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="status-chip" id="advisorDetailRole">-</span>
+              <span class="status-chip" id="advisorDetailStatus">-</span>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total ARS</small><div class="kpi" id="advisorDetailKpiTotal">-</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Transacciones</small><div class="kpi" id="advisorDetailKpiCount">-</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio</small><div class="kpi" id="advisorDetailKpiAvg">-</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="advisorDetailKpiCategory">-</div></div></div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+              <section class="panel-card h-100">
+                <div class="section-title mb-3">
+                  <h5 class="mb-0">Categorías del usuario</h5>
+                </div>
+                <div id="advisorDetailCategoryEmpty" class="empty-state d-none">Este usuario no tiene gastos en el período.</div>
+                <div class="chart-wrap" id="advisorDetailCategoryWrap"><canvas id="advisorDetailCategoryChart"></canvas></div>
+              </section>
+            </div>
+            <div class="col-lg-6">
+              <section class="panel-card h-100">
+                <div class="section-title mb-3">
+                  <h5 class="mb-0">Tendencia diaria</h5>
+                </div>
+                <div id="advisorDetailTrendEmpty" class="empty-state d-none">No hay fechas suficientes para trazar tendencia.</div>
+                <div class="chart-wrap" id="advisorDetailTrendWrap"><canvas id="advisorDetailTrendChart"></canvas></div>
+              </section>
+            </div>
+          </div>
+
+          <div class="section-title mb-2">
+            <h5 class="mb-0">Gastos del usuario</h5>
+            <span class="text-secondary small" id="advisorDetailTableMeta">0 registros</span>
+          </div>
+          <div class="advisor-filters mb-3">
+            <div>
+              <label class="form-label mb-1" for="advisorDetailSearch">Filtrar gastos</label>
+              <input id="advisorDetailSearch" type="text" class="form-control form-control-modern" placeholder="Comercio, categoría o descripción" />
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-modern align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Comercio</th>
+                  <th>Categoría</th>
+                  <th>Origen</th>
+                  <th>Original</th>
+                  <th>ARS</th>
+                </tr>
+              </thead>
+              <tbody id="advisorDetailExpensesBody"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
+    <script src="../js/nav.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/advisor.js"></script>
