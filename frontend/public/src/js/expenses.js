@@ -115,23 +115,10 @@ function ensureSelectHasOption(selectElement, value) {
 }
 
 function showExpensesToast(message, type = 'success') {
-  let stack = document.getElementById('expensesToastStack');
-  if (!stack) {
-    stack = document.createElement('div');
-    stack.id = 'expensesToastStack';
-    stack.className = 'neto-toast-stack';
-    document.body.appendChild(stack);
+  if (window.NetoToast?.show) {
+    window.NetoToast.show(message, type, { stackId: 'expensesToastStack', leaveDelay: 2300, removeDelay: 230 });
+    return;
   }
-
-  const toast = document.createElement('div');
-  toast.className = `neto-toast ${type}`;
-  toast.textContent = message;
-  stack.appendChild(toast);
-
-  window.setTimeout(() => {
-    toast.classList.add('is-leaving');
-    window.setTimeout(() => toast.remove(), 230);
-  }, 2300);
 }
 
 function pencilIcon() {
@@ -465,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('expensesBody')?.addEventListener('click', async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) {
+    if (!(target instanceof Element)) {
       return;
     }
 

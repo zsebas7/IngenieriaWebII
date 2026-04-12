@@ -29,23 +29,10 @@ let deletingExpenseId = null;
 const MONTH_NAMES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 function showStatsToast(message, type = 'success') {
-  let stack = document.getElementById('statsToastStack');
-  if (!stack) {
-    stack = document.createElement('div');
-    stack.id = 'statsToastStack';
-    stack.className = 'neto-toast-stack';
-    document.body.appendChild(stack);
+  if (window.NetoToast?.show) {
+    window.NetoToast.show(message, type, { stackId: 'statsToastStack', leaveDelay: 2300, removeDelay: 220 });
+    return;
   }
-
-  const toast = document.createElement('div');
-  toast.className = `neto-toast ${type}`;
-  toast.textContent = message;
-  stack.appendChild(toast);
-
-  window.setTimeout(() => {
-    toast.classList.add('is-leaving');
-    window.setTimeout(() => toast.remove(), 220);
-  }, 2300);
 }
 
 function eyeIcon() {

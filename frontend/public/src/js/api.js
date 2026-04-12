@@ -33,15 +33,10 @@ window.NetoApi = {
   myDashboard: (month) => apiRequest(`/dashboard/me?month=${month}`),
   listExpenses: (filters = {}) => {
     const params = new URLSearchParams();
-    if (filters.month) {
-      params.set('month', filters.month);
-    }
-    if (filters.category) {
-      params.set('category', filters.category);
-    }
-
+    if (filters.month) params.set('month', String(filters.month));
+    if (filters.category) params.set('category', String(filters.category));
     const query = params.toString();
-    return apiRequest(`/expenses${query ? `?${query}` : ''}`);
+    return apiRequest(query ? `/expenses?${query}` : '/expenses');
   },
   createExpense: (body) => apiRequest('/expenses', { method: 'POST', body: JSON.stringify(body) }),
   updateExpense: (id, body) => apiRequest(`/expenses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
@@ -65,6 +60,9 @@ window.NetoApi = {
   deleteBudget: (id) => apiRequest(`/budgets/${id}`, { method: 'DELETE' }),
   listGoals: () => apiRequest('/goals'),
   createGoal: (body) => apiRequest('/goals', { method: 'POST', body: JSON.stringify(body) }),
+  updateGoal: (id, body) => apiRequest(`/goals/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  addGoalSavings: (id, body) => apiRequest(`/goals/${id}/savings`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteGoal: (id) => apiRequest(`/goals/${id}`, { method: 'DELETE' }),
   generateRecommendation: () => apiRequest('/recommendations/generate', { method: 'POST' }),
   listRecommendations: () => apiRequest('/recommendations'),
   myProfile: () => apiRequest('/users/me'),

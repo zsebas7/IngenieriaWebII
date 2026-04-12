@@ -53,45 +53,7 @@
       </div>
     </header>
 
-    <nav class="subnav">
-      <div class="container d-flex flex-wrap gap-2 py-2">
-        <button id="navToggle" class="subnav-toggle" type="button" aria-expanded="false" aria-label="Mostrar u ocultar etiquetas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"></path>
-          </svg>
-        </button>
-        <a class="chip active" href="dashboard.html" data-label="Resumen" title="Resumen" aria-label="Resumen">
-          <span class="chip-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3h8v4h-8zM3 21h8v-6H3z"/></svg>
-          </span>
-          <span class="chip-label">Resumen</span>
-        </a>
-        <a class="chip" href="expenses.html" data-label="Cargar Gastos" title="Cargar Gastos" aria-label="Cargar Gastos">
-          <span class="chip-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-          </span>
-          <span class="chip-label">Cargar Gastos</span>
-        </a>
-        <a class="chip" href="planning.html" data-label="Planificación" title="Planificación" aria-label="Planificación">
-          <span class="chip-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4v4M16 4v4M4 10h16M6 20h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
-          </span>
-          <span class="chip-label">Planificación</span>
-        </a>
-        <a class="chip" href="stats.html" data-label="Estadísticas" title="Estadísticas" aria-label="Estadísticas">
-          <span class="chip-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M7 16V8M12 16V5M17 16v-3"/></svg>
-          </span>
-          <span class="chip-label">Estadísticas</span>
-        </a>
-        <a class="chip" href="profile.html" data-label="Perfil" title="Perfil" aria-label="Perfil">
-          <span class="chip-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
-          </span>
-          <span class="chip-label">Perfil</span>
-        </a>
-      </div>
-    </nav>
+    <nav class="subnav" data-component="sidebar"></nav>
 
     <main class="container py-4 py-lg-5">
       <section class="hero-panel mb-4 fade-in-up">
@@ -105,32 +67,54 @@
       </section>
 
       <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Total del mes</small><div class="kpi" id="kpiTotal">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Promedio</small><div class="kpi" id="kpiAverage">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="kpiCategory">-</div></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><small>Variación</small><div class="kpi" id="kpiVariation">-</div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="metric-card"><small>Total del mes</small><div class="kpi" id="kpiTotal">-</div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="metric-card"><small>Promedio</small><div class="kpi" id="kpiAverage">-</div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="metric-card"><small>Top categoría</small><div class="kpi" id="kpiCategory">-</div></div></div>
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-lg-7">
+        <div class="col-lg-8">
           <section class="panel-card h-100">
             <div class="section-title mb-3">
               <h5 class="mb-0">Distribución por categoría</h5>
               <a class="text-link" href="stats.html">Ver análisis</a>
             </div>
-            <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+            <div class="chart-wrap dashboard-chart-wrap"><canvas id="categoryChart"></canvas></div>
           </section>
         </div>
-        <div class="col-lg-5">
+        <div class="col-lg-4">
           <section class="panel-card h-100">
-            <h5 class="mb-3">Presupuestos activos</h5>
+            <div class="section-title mb-3">
+              <h5 class="mb-0">Recomendaciónes</h5>
+            </div>
+            <div id="recommendations"></div>
+          </section>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+          <section class="panel-card h-100">
+            <div class="summary-block-head mb-3">
+              <h5 class="mb-0">Presupuestos activos</h5>
+              <a class="text-link small" href="planning.html">Ver todos</a>
+            </div>
             <div id="budgetProgress"></div>
+          </section>
+        </div>
+        <div class="col-lg-6">
+          <section class="panel-card h-100">
+            <div class="summary-block-head mb-3">
+              <h5 class="mb-0">Metas activas</h5>
+              <a class="text-link small" href="goals.html">Ver todas</a>
+            </div>
+            <div id="goalProgress"></div>
           </section>
         </div>
       </div>
 
       <div class="row g-3">
-        <div class="col-lg-7">
+        <div class="col-12">
           <section class="panel-card h-100">
             <div class="section-title mb-3">
               <h5 class="mb-0">Últimos gastos</h5>
@@ -142,12 +126,6 @@
                 <tbody id="expensesBody"></tbody>
               </table>
             </div>
-          </section>
-        </div>
-        <div class="col-lg-5">
-          <section class="panel-card h-100">
-            <h5 class="mb-3">Recomendaciónes</h5>
-            <div id="recommendations"></div>
           </section>
         </div>
       </div>

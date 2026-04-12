@@ -10,6 +10,12 @@ type CachedRates = {
 export class ExchangeRateService {
   private cache: CachedRates | null = null;
 
+  private static readonly STATIC_FALLBACK_RATES = {
+    ARS: 1,
+    USD: 1200,
+    EUR: 1300,
+  };
+
   async convertToArs(amount: number, currency: string) {
     if (currency === 'ARS') {
       return amount;
@@ -46,14 +52,12 @@ export class ExchangeRateService {
     }
 
     try {
-      const response = await axios.get('https://api.frankfurter.app/latest?from=ARS&to=USD,EUR');
-      const ratesFromArs = response.data?.rates ?? { USD: 0.001, EUR: 0.001 };
+      const ratesToArs =
+        (await this.fetchOpenErApiRatesToArs()) ?? (await this.fetchFrankfurterRatesToArs()) ?? null;
 
-      const ratesToArs = {
-        USD: ratesFromArs.USD ? 1 / ratesFromArs.USD : 1,
-        EUR: ratesFromArs.EUR ? 1 / ratesFromArs.EUR : 1,
-        ARS: 1,
-      };
+      if (!ratesToArs) {
+        throw new Error('No exchange provider available');
+      }
 
       this.cache = { fetchedAt: now, rates: ratesToArs };
       return ratesToArs;
@@ -62,11 +66,49 @@ export class ExchangeRateService {
         return this.cache.rates;
       }
 
+      return ExchangeRateService.STATIC_FALLBACK_RATES;
+    }
+  }
+
+  private async fetchOpenErApiRatesToArs(): Promise<Record<string, number> | null> {
+    try {
+      const response = await axios.get('https://open.er-api.com/v6/latest/ARS', { timeout: 4500 });
+      const rates = response.data?.rates;
+      const usdFromArs = Number(rates?.USD ?? 0);
+      const eurFromArs = Number(rates?.EUR ?? 0);
+
+      if (usdFromArs <= 0 || eurFromArs <= 0) {
+        return null;
+      }
+
       return {
         ARS: 1,
-        USD: 1200,
-        EUR: 1300,
+        USD: Number((1 / usdFromArs).toFixed(4)),
+        EUR: Number((1 / eurFromArs).toFixed(4)),
       };
+    } catch {
+      return null;
+    }
+  }
+
+  private async fetchFrankfurterRatesToArs(): Promise<Record<string, number> | null> {
+    try {
+      const response = await axios.get('https://api.frankfurter.app/latest?from=ARS&to=USD,EUR', { timeout: 4500 });
+      const ratesFromArs = response.data?.rates;
+      const usdFromArs = Number(ratesFromArs?.USD ?? 0);
+      const eurFromArs = Number(ratesFromArs?.EUR ?? 0);
+
+      if (usdFromArs <= 0 || eurFromArs <= 0) {
+        return null;
+      }
+
+      return {
+        ARS: 1,
+        USD: Number((1 / usdFromArs).toFixed(4)),
+        EUR: Number((1 / eurFromArs).toFixed(4)),
+      };
+    } catch {
+      return null;
     }
   }
 }

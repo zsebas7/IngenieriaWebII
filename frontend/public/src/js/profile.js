@@ -6,23 +6,10 @@ function updateTopSummary(user) {
 }
 
 function showProfileToast(message, type = 'success') {
-  let stack = document.getElementById('profileToastStack');
-  if (!stack) {
-    stack = document.createElement('div');
-    stack.id = 'profileToastStack';
-    stack.className = 'neto-toast-stack';
-    document.body.appendChild(stack);
+  if (window.NetoToast?.show) {
+    window.NetoToast.show(message, type, { stackId: 'profileToastStack', leaveDelay: 2300, removeDelay: 220 });
+    return;
   }
-
-  const toast = document.createElement('div');
-  toast.className = `neto-toast ${type}`;
-  toast.textContent = message;
-  stack.appendChild(toast);
-
-  window.setTimeout(() => {
-    toast.classList.add('is-leaving');
-    window.setTimeout(() => toast.remove(), 220);
-  }, 2300);
 }
 
 function fillForm(user) {

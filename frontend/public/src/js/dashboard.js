@@ -82,20 +82,43 @@ async function loadDashboard() {
   const user = window.NetoAuth.getCurrentUser();
 
   const month = document.getElementById('monthInput').value;
-  const dashboard = await window.NetoApi.myDashboard(month);
-  const expenses = await window.NetoApi.listExpenses();
-  const recommendations = await window.NetoApi.listRecommendations();
+  const [dashboard, expenses, recommendations, goals] = await Promise.all([
+    window.NetoApi.myDashboard(month),
+    window.NetoApi.listExpenses(),
+    window.NetoApi.listRecommendations(),
+    window.NetoApi.listGoals(),
+  ]);
 
   document.getElementById('welcomeName').textContent = user.fullName;
   document.getElementById('kpiTotal').textContent = `ARS ${dashboard.totalMonthArs.toFixed(2)}`;
   document.getElementById('kpiAverage').textContent = `ARS ${dashboard.averageExpenseArs.toFixed(2)}`;
   document.getElementById('kpiCategory').textContent = dashboard.topCategory;
-  document.getElementById('kpiVariation').textContent = `${dashboard.variationVsLastMonth}%`;
 
   renderCategoryChart(dashboard.byCategory);
   renderExpenses(expenses.slice(0, 8));
   renderRecommendations(recommendations);
   renderBudgetProgress(dashboard.budgetProgress);
+  renderGoalProgress(goals);
+}
+
+function parseApiDate(dateValue) {
+  const value = String(dateValue || '').trim();
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+}
+
+function daysUntilDeadline(dateValue) {
+  const deadline = parseApiDate(dateValue);
+  if (!deadline) return null;
+
+  const today = new Date();
+  const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const target = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+  return Math.round((target.getTime() - startToday.getTime()) / 86400000);
 }
 
 function formatDateDisplay(dateValue) {
@@ -134,6 +157,9 @@ function renderCategoryChart(byCategory) {
       ],
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1.12,
       plugins: {
         legend: {
           position: 'bottom',
@@ -145,6 +171,64 @@ function renderCategoryChart(byCategory) {
       cutout: '65%',
     },
   });
+}
+
+function renderGoalProgress(items) {
+  const list = document.getElementById('goalProgress');
+  if (!list) return;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    list.innerHTML = '<p class="text-secondary mb-0">No hay metas cargadas.</p>';
+    return;
+  }
+
+  const activeGoals = items.filter((goal) => {
+    const saved = Number(goal.savedAmount || 0);
+    const target = Number(goal.targetAmount || 0);
+    const isCompleted = target > 0 && saved >= target;
+    const daysLeft = daysUntilDeadline(goal.deadline);
+    const isExpired = daysLeft !== null && daysLeft < 0;
+    return !isCompleted && !isExpired;
+  });
+
+  if (activeGoals.length === 0) {
+    list.innerHTML = '<p class="text-secondary mb-0">No hay metas activas en este momento.</p>';
+    return;
+  }
+
+  list.innerHTML = activeGoals
+    .slice(0, 2)
+    .map((goal) => {
+      const target = Number(goal.targetAmount || 0);
+      const saved = Number(goal.savedAmount || 0);
+      const remaining = Math.max(target - saved, 0);
+      const ratio = target > 0 ? saved / target : 0;
+      const progressPercent = Math.max(0, Math.min(ratio * 100, 100));
+      const daysLeft = daysUntilDeadline(goal.deadline);
+      const urgency = daysLeft !== null && daysLeft <= 3 ? 'goal-urgency goal-urgency--danger' : 'goal-urgency';
+      const deadlineText =
+        daysLeft === null
+          ? 'Fecha no disponible'
+          : daysLeft === 0
+            ? 'Vence hoy'
+            : `Faltan ${daysLeft} dia${daysLeft === 1 ? '' : 's'}`;
+      const goalLink = `goals.html?goal=${encodeURIComponent(goal.id || '')}`;
+
+      return `
+        <a class="budget-progress-item dashboard-drilldown" href="${goalLink}" title="Ver detalle de meta">
+          <div class="budget-progress-row">
+            <span>${goal.title || 'Meta'}</span>
+            <span class="budget-progress-value budget-progress-value--good">${progressPercent.toFixed(1)}%</span>
+          </div>
+          <div class="planning-item-meta">Ahorrado: ${goal.currency || 'ARS'} ${saved.toFixed(2)} | Falta: ${goal.currency || 'ARS'} ${remaining.toFixed(2)}</div>
+          <div class="planning-item-meta ${urgency}">${deadlineText}</div>
+          <div class="progress progress-modern mt-2">
+            <div class="progress-bar progress-bar--good" style="width:${progressPercent}%"></div>
+          </div>
+        </a>
+      `;
+    })
+    .join('');
 }
 
 function renderExpenses(expenses) {
@@ -180,7 +264,7 @@ function renderRecommendations(items) {
   }
 
   container.innerHTML = items
-    .slice(0, 4)
+    .slice(0, 3)
     .map(
       (item) => `
       <div class="recommendation-item">
@@ -201,6 +285,7 @@ function renderBudgetProgress(items) {
   }
 
   list.innerHTML = items
+    .slice(0, 2)
     .map((item) => {
       const limitAmount = Number(item.limitAmount || 0);
       const usedAmount = Number(item.used || 0);
@@ -223,8 +308,10 @@ function renderBudgetProgress(items) {
         statusLabel = `Margen restante critico: ARS ${remainingAmount.toFixed(2)}`;
       }
 
+      const planningLink = `planning.html?category=${encodeURIComponent(item.category || '')}`;
+
         return `
-        <div class="budget-progress-item">
+        <a class="budget-progress-item dashboard-drilldown" href="${planningLink}" title="Ver detalle de presupuesto">
           <div class="budget-progress-row">
           <span>${item.category}</span>
           <span class="budget-progress-value ${statusClass}">${statusLabel}</span>
@@ -232,7 +319,7 @@ function renderBudgetProgress(items) {
           <div class="progress progress-modern">
             <div class="progress-bar ${progressBarClass}" style="width:${progressPercent}%"></div>
         </div>
-      </div>`;
+      </a>`;
     })
     .join('');
 }

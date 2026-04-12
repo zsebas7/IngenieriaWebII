@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cargar Gastos | NETO</title>
+    <title>Carga Manual | NETO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
@@ -12,146 +12,28 @@
       <div class="container py-3 dashboard-header">
         <div>
           <p class="eyebrow mb-1">Centro de gastos</p>
-          <h1 class="h3 mb-0">Cargar gastos y tickets</h1>
+          <h1 class="h3 mb-0">Carga manual de gastos</h1>
         </div>
       </div>
     </header>
 
-    <nav class="subnav">
-      <div class="container d-flex flex-wrap gap-2 py-2">
-        <button id="navToggle" class="subnav-toggle" type="button" aria-expanded="false" aria-label="Mostrar u ocultar etiquetas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"></path>
-          </svg>
-        </button>
-        <a class="chip" href="dashboard.html" data-label="Resumen" title="Resumen" aria-label="Resumen">
-          <span class="chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3h8v4h-8zM3 21h8v-6H3z"/></svg></span>
-          <span class="chip-label">Resumen</span>
-        </a>
-        <a class="chip active" href="expenses.html" data-label="Cargar Gastos" title="Cargar Gastos" aria-label="Cargar Gastos">
-          <span class="chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
-          <span class="chip-label">Cargar Gastos</span>
-        </a>
-        <a class="chip" href="planning.html" data-label="Planificación" title="Planificación" aria-label="Planificación">
-          <span class="chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4v4M16 4v4M4 10h16M6 20h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg></span>
-          <span class="chip-label">Planificación</span>
-        </a>
-        <a class="chip" href="stats.html" data-label="Estadísticas" title="Estadísticas" aria-label="Estadísticas">
-          <span class="chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M7 16V8M12 16V5M17 16v-3"/></svg></span>
-          <span class="chip-label">Estadísticas</span>
-        </a>
-        <a class="chip" href="profile.html" data-label="Perfil" title="Perfil" aria-label="Perfil">
-          <span class="chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span>
-          <span class="chip-label">Perfil</span>
-        </a>
-      </div>
-    </nav>
+    <nav class="subnav" data-component="sidebar"></nav>
 
-    <main class="container py-4 py-lg-5">
-      <div class="expenses-layout mb-4">
-        <section class="panel-card h-100 expense-form-card">
-          <h5 class="mb-1">Carga manual de gasto</h5>
-          <p class="text-secondary small mb-3">Completá los datos para registrar un nuevo gasto.</p>
-          <form id="expenseForm" class="expense-create-form row g-3">
-            <div class="col-md-7">
-              <label class="form-label">Comercio</label>
-              <input class="form-control form-control-modern" name="merchant" placeholder="Ej: Supermercado Central" required />
-            </div>
-            <div class="col-md-5">
-              <label class="form-label">Fecha</label>
-              <div class="input-group calendar-input-group">
-                <input id="createExpenseDateInput" class="form-control form-control-modern" type="text" name="expenseDate" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" inputmode="numeric" maxlength="10" data-date-mask="ddmmyyyy" required />
-                <input id="createExpenseDatePicker" class="calendar-hidden-input" type="date" tabindex="-1" aria-hidden="true" />
-                <button class="btn btn-outline-secondary date-picker-trigger" type="button" data-target="createExpenseDatePicker" data-sync="createExpenseDateInput" aria-label="Abrir calendario para fecha de gasto" title="Abrir calendario">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Monto</label>
-              <input class="form-control form-control-modern no-spinner" type="number" step="0.01" name="originalAmount" placeholder="0.00" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Moneda</label>
-              <select class="form-select form-control-modern" name="currency"><option>ARS</option><option>USD</option><option>EUR</option></select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Categoría</label>
-              <select class="form-select form-control-modern" name="category" required>
-                <option value="">Seleccionar</option>
-                <option>Alimentos</option>
-                <option>Entretenimiento</option>
-                <option>Transporte</option>
-                <option>Salud</option>
-                <option>Educación</option>
-                <option>Servicios</option>
-                <option>Hogar</option>
-                <option>Otros</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Descripción (opcional)</label>
-              <input class="form-control form-control-modern" name="description" placeholder="Detalle adicional del gasto" />
-            </div>
-            <div class="col-12 d-flex justify-content-end gap-2 expense-form-actions">
-              <button class="btn btn-neto expense-submit-btn" type="submit">Guardar gasto</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="panel-card h-100 ticket-card">
-            <h5 class="mb-3">Carga tu ticket</h5>
-            <form id="ticketForm" class="ticket-upload-form d-flex flex-column gap-2">
-              <label for="ticketFile" id="ticketDropzone" class="expenses-ticket-dropzone">
-                <strong>Arrastra y suelta tu archivo aquí</strong>
-                <small>o haz click para seleccionarlo (JPG, PNG o PDF)</small>
-                <div id="ticketFileName" class="ticket-file-name">Ningún archivo seleccionado</div>
-              </label>
-              <input id="ticketFile" class="d-none" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
-              <button class="btn btn-neto ticket-submit-btn" type="submit">Procesar ticket</button>
-            </form>
-        </section>
-      </div>
-
-      <section class="panel-card">
-        <div class="section-title mb-3">
-          <h5 class="mb-0">Historial de gastos</h5>
-          <span class="text-secondary">Actualización en tiempo real</span>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-modern align-middle">
-            <thead><tr><th>Fecha</th><th>Comercio</th><th>Categoría</th><th>Original</th><th>ARS</th><th>Fuente</th><th>Acciones</th></tr></thead>
-            <tbody id="expensesBody"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-
-    <div class="modal fade" id="editExpenseModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content panel-card">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title">Editar gasto</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body pt-2">
-            <div id="editExpenseSummary" class="empty-state py-2 mb-3">Editando gasto seleccionado.</div>
-            <form id="editExpenseForm" class="row g-3">
+    <main class="container py-4 py-lg-5 page-main-with-footer-link">
+      <section class="panel-card expense-form-card">
+        <h5 class="mb-1">Registrar gasto manual</h5>
+        <p class="text-secondary small mb-3">Completá los datos para guardar un gasto de manera manual.</p>
+        <form id="manualExpenseForm" class="expense-create-form row g-3">
               <div class="col-md-7">
                 <label class="form-label">Comercio</label>
-                <input class="form-control form-control-modern" name="merchant" required />
+                <input class="form-control form-control-modern" name="merchant" placeholder="Ej: Supermercado Central" required />
               </div>
               <div class="col-md-5">
                 <label class="form-label">Fecha</label>
                 <div class="input-group calendar-input-group">
-                  <input id="editExpenseDateInput" class="form-control form-control-modern" type="text" name="expenseDate" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" inputmode="numeric" maxlength="10" data-date-mask="ddmmyyyy" required />
-                  <input id="editExpenseDatePicker" class="calendar-hidden-input" type="date" tabindex="-1" aria-hidden="true" />
-                  <button class="btn btn-outline-secondary date-picker-trigger" type="button" data-target="editExpenseDatePicker" data-sync="editExpenseDateInput" aria-label="Abrir calendario para editar fecha" title="Abrir calendario">
+                  <input id="manualExpenseDateInput" class="form-control form-control-modern" type="text" name="expenseDate" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" inputmode="numeric" maxlength="10" data-date-mask="ddmmyyyy" required />
+                  <input id="manualExpenseDatePicker" class="calendar-hidden-input" type="date" tabindex="-1" aria-hidden="true" />
+                  <button class="btn btn-outline-secondary date-picker-trigger" type="button" data-target="manualExpenseDatePicker" data-sync="manualExpenseDateInput" aria-label="Abrir calendario para fecha de gasto" title="Abrir calendario">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                       <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -163,7 +45,7 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label">Monto</label>
-                <input class="form-control form-control-modern no-spinner" type="number" step="0.01" name="originalAmount" required />
+                <input class="form-control form-control-modern no-spinner" type="number" step="0.01" name="originalAmount" placeholder="0.00" required />
               </div>
               <div class="col-md-4">
                 <label class="form-label">Moneda</label>
@@ -185,43 +67,29 @@
               </div>
               <div class="col-12">
                 <label class="form-label">Descripción (opcional)</label>
-                <input class="form-control form-control-modern" name="description" />
+                <input class="form-control form-control-modern" name="description" placeholder="Detalle adicional del gasto" />
               </div>
-              <div class="col-12 d-flex justify-content-end gap-2">
-                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-neto" type="submit">Guardar cambios</button>
+              <div class="col-12 d-flex justify-content-end gap-2 expense-form-actions">
+                <button class="btn btn-neto expense-submit-btn" type="submit">Guardar gasto manual</button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+        </form>
+      </section>
 
-    <div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content panel-card">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title">Confirmar borrado</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body pt-2">
-            <p class="mb-2">¿Seguro que querés borrar este gasto?</p>
-            <div id="deleteExpenseSummary" class="empty-state py-2 mb-3">Este cambio no se puede deshacer.</div>
-            <div class="d-flex justify-content-end gap-2">
-              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
-              <button id="confirmDeleteExpenseBtn" class="btn btn-danger" type="button">Borrar gasto</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <p class="flow-redirect-note mt-3 mb-0">
+        ¿Prefieres cargar el gasto con ticket?
+        <a href="expenses-upload.html">Subir ticket</a>
+        <span class="mx-1">·</span>
+        <a href="expenses-organize.html">Organizar gastos</a>
+      </p>
+    </main>
 
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
     <script src="../js/nav.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/expenses.js"></script>
+    <script src="../js/toast.js"></script>
+    <script src="../js/expenses-helpers.js"></script>
+    <script src="../js/expenses-manual.js"></script>
   </body>
 </html>

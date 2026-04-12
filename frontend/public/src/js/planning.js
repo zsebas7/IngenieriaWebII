@@ -1,4 +1,6 @@
 let editingBudgetId = null;
+let deletingBudgetId = null;
+let hasAppliedBudgetFocus = false;
 
 function formatMoney(currency, value) {
   return `${currency} ${Number(value || 0).toFixed(2)}`;
@@ -20,49 +22,19 @@ function escapeHtmlAttr(value) {
     .replaceAll('>', '&gt;');
 }
 
-function formatDateDisplay(dateValue) {
-  if (!dateValue) return '-';
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) return dateValue;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-    const [year, month, day] = dateValue.split('-');
-    return `${day}/${month}/${year}`;
-  }
-  return new Date(dateValue).toLocaleDateString('es-AR');
+function ensureSelectHasOption(selectElement, value) {
+  if (!(selectElement instanceof HTMLSelectElement)) return;
+  if (!value) return;
+  const exists = Array.from(selectElement.options).some((option) => option.value === value);
+  if (exists) return;
+  const dynamicOption = document.createElement('option');
+  dynamicOption.value = value;
+  dynamicOption.textContent = value;
+  selectElement.appendChild(dynamicOption);
 }
 
-function parseDateToApi(input) {
-  const value = String(input || '').trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!match) return null;
-  const [, day, month, year] = match;
-  return `${year}-${month}-${day}`;
-}
-
-function maskDateInputValue(value) {
-  const digits = String(value || '').replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
-function applyDateMasks(root = document) {
-  const dateInputs = root.querySelectorAll('input[data-date-mask="ddmmyyyy"]');
-  dateInputs.forEach((input) => {
-    input.addEventListener('input', () => {
-      const masked = maskDateInputValue(input.value);
-      if (input.value !== masked) {
-        input.value = masked;
-      }
-    });
-  });
-}
-
-function fillBudgetMonthOptions() {
-  const monthSelect = document.getElementById('budgetMonthSelect');
-  const yearSelect = document.getElementById('budgetYearSelect');
+function fillMonthYearOptions(monthSelect, yearSelect) {
   if (!(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
-
   if (monthSelect.options.length > 1 || yearSelect.options.length > 1) return;
 
   const now = new Date();
@@ -94,52 +66,9 @@ function fillBudgetMonthOptions() {
   }
 }
 
-function setupDatePickerTriggers(root = document) {
-  const triggerButtons = root.querySelectorAll('.date-picker-trigger[data-target]');
-  triggerButtons.forEach((button) => {
-    if (button.dataset.bound === 'true') return;
-    button.dataset.bound = 'true';
-
-    const targetId = button.dataset.target;
-    const syncId = button.dataset.sync;
-
-    if (targetId && syncId) {
-      const pickerInput = document.getElementById(targetId);
-      if (pickerInput instanceof HTMLInputElement) {
-        pickerInput.addEventListener('change', () => {
-          const visibleInput = document.getElementById(syncId);
-          if (!(visibleInput instanceof HTMLInputElement)) return;
-
-          const selected = pickerInput.value;
-          if (!selected) return;
-          const [year, month, day] = selected.split('-');
-          visibleInput.value = `${day}/${month}/${year}`;
-        });
-      }
-    }
-
-    button.addEventListener('click', () => {
-      if (!targetId) return;
-
-      const input = document.getElementById(targetId);
-      if (!(input instanceof HTMLInputElement)) return;
-
-      if (syncId) {
-        const visibleInput = document.getElementById(syncId);
-        if (visibleInput instanceof HTMLInputElement) {
-          const currentApiDate = parseDateToApi(visibleInput.value);
-          if (currentApiDate) {
-            input.value = currentApiDate;
-          }
-        }
-      }
-
-      input.focus();
-      if (typeof input.showPicker === 'function') {
-        input.showPicker();
-      }
-    });
-  });
+function fillBudgetMonthOptions() {
+  fillMonthYearOptions(document.getElementById('budgetMonthSelect'), document.getElementById('budgetYearSelect'));
+  fillMonthYearOptions(document.getElementById('editBudgetMonthSelect'), document.getElementById('editBudgetYearSelect'));
 }
 
 function formatMonthDisplay(value) {
@@ -169,6 +98,10 @@ function normalizeCategory(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+function escapeCssSelectorValue(value) {
+  return String(value || '').replaceAll('"', '\\"');
+}
+
 function mergeBudgetSpentFromExpenses(budgets, expenses) {
   if (!Array.isArray(budgets)) return [];
   if (!Array.isArray(expenses) || expenses.length === 0) {
@@ -193,36 +126,43 @@ function mergeBudgetSpentFromExpenses(budgets, expenses) {
   });
 }
 
-function setBudgetFormMode(isEditing) {
-  const submitBtn = document.getElementById('budgetSubmitBtn');
-  const cancelBtn = document.getElementById('cancelBudgetEditBtn');
-  if (submitBtn instanceof HTMLButtonElement) {
-    submitBtn.textContent = isEditing ? 'Guardar cambios' : 'Guardar presupuesto';
-  }
-  if (cancelBtn instanceof HTMLButtonElement) {
-    cancelBtn.classList.toggle('d-none', !isEditing);
-  }
-}
+function openEditBudgetModal(button) {
+  const form = document.getElementById('editBudgetForm');
+  if (!(form instanceof HTMLFormElement)) return;
 
-function setBudgetFormValues(form, budget) {
-  if (!(form instanceof HTMLFormElement) || !budget) return;
+  editingBudgetId = button.dataset.id || null;
+  ensureSelectHasOption(form.budgetCategory, button.dataset.category || '');
+  form.budgetCategory.value = button.dataset.category || '';
+  form.budgetAmount.value = Number(button.dataset.limit || 0).toFixed(2);
+  form.budgetCurrency.value = button.dataset.currency || 'ARS';
 
-  form.budgetCategory.value = budget.category || '';
-  form.budgetAmount.value = Number(budget.limitAmount || 0).toFixed(2);
-  form.budgetCurrency.value = budget.currency || 'ARS';
-
-  const monthMatch = String(budget.month || '').match(/^(\d{4})-(\d{2})$/);
+  const monthMatch = String(button.dataset.month || '').match(/^(\d{4})-(\d{2})$/);
   if (monthMatch) {
     form.budgetYearSelect.value = monthMatch[1];
     form.budgetMonthSelect.value = monthMatch[2];
   }
+
+  const summary = document.getElementById('editBudgetSummary');
+  if (summary) {
+    summary.textContent = `Categoria: ${button.dataset.category || '-'} | Mes: ${formatMonthDisplay(button.dataset.month || '-')} | Limite: ${button.dataset.currency || 'ARS'} ${Number(button.dataset.limit || 0).toFixed(2)}`;
+  }
+
+  const modalElement = document.getElementById('editBudgetModal');
+  if (!modalElement || typeof bootstrap === 'undefined') return;
+  bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
-function resetBudgetForm(form) {
-  if (!(form instanceof HTMLFormElement)) return;
-  editingBudgetId = null;
-  form.reset();
-  setBudgetFormMode(false);
+function openDeleteBudgetModal(button) {
+  deletingBudgetId = button.dataset.id || null;
+
+  const summary = document.getElementById('deleteBudgetSummary');
+  if (summary) {
+    summary.textContent = `Categoria: ${button.dataset.category || '-'} | Mes: ${formatMonthDisplay(button.dataset.month || '-')}`;
+  }
+
+  const modalElement = document.getElementById('deleteBudgetModal');
+  if (!modalElement || typeof bootstrap === 'undefined') return;
+  bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
 function renderBudgetList(budgets) {
@@ -248,7 +188,7 @@ function renderBudgetList(budgets) {
       const progressBarClass = isOverLimit ? 'progress-bar--danger' : isNearLimit ? 'progress-bar--warn' : 'progress-bar--good';
 
       return `
-        <article class="planning-item">
+        <article class="planning-item" data-budget-category="${escapeHtmlAttr(normalizeCategory(budget.category))}">
           <div class="planning-item-top">
             <div class="planning-item-title">${budget.category || 'Categoria'}</div>
             <div class="planning-item-actions">
@@ -274,35 +214,9 @@ function renderBudgetList(budgets) {
     .join('');
 }
 
-function renderGoalList(goals) {
-  const container = document.getElementById('goalList');
-  if (!container) return;
-
-  if (!Array.isArray(goals) || goals.length === 0) {
-    container.innerHTML = '<div class="empty-state">Todavia no cargaste metas de ahorro.</div>';
-    return;
-  }
-
-  container.innerHTML = goals
-    .map(
-      (goal) => `
-        <article class="planning-item">
-          <div class="planning-item-top">
-            <div class="planning-item-title">${goal.title || 'Meta'}</div>
-            <span class="status-chip good">Activa</span>
-          </div>
-          <div class="planning-item-meta">Objetivo: ${formatMoney(goal.currency || 'ARS', goal.targetAmount)}</div>
-          <div class="planning-item-meta">Fecha objetivo: ${formatDateDisplay(goal.deadline)}</div>
-        </article>
-      `,
-    )
-    .join('');
-}
-
 async function refreshPlanningData() {
-  const [budgetsResult, goalsResult, expensesResult] = await Promise.allSettled([
+  const [budgetsResult, expensesResult] = await Promise.allSettled([
     window.NetoApi.listBudgets(),
-    window.NetoApi.listGoals(),
     window.NetoApi.listExpenses(),
   ]);
 
@@ -311,72 +225,104 @@ async function refreshPlanningData() {
     const expenses = expensesResult.status === 'fulfilled' ? expensesResult.value || [] : [];
     const enrichedBudgets = mergeBudgetSpentFromExpenses(budgets, expenses);
     renderBudgetList(enrichedBudgets);
+    if (!hasAppliedBudgetFocus) {
+      applyBudgetFocusFromQuery();
+    }
   } else {
     renderBudgetList([]);
   }
+}
 
-  if (goalsResult.status === 'fulfilled') {
-    renderGoalList(goalsResult.value || []);
-  } else {
-    renderGoalList([]);
+function applyBudgetFocusFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const category = normalizeCategory(params.get('category'));
+  if (!category) {
+    hasAppliedBudgetFocus = true;
+    return;
   }
+
+  const selector = `.planning-item[data-budget-category="${escapeCssSelectorValue(category)}"]`;
+  const targetCard = document.querySelector(selector);
+  if (!(targetCard instanceof HTMLElement)) {
+    hasAppliedBudgetFocus = true;
+    return;
+  }
+
+  targetCard.classList.add('dashboard-focus-target');
+  targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  window.setTimeout(() => {
+    targetCard.classList.remove('dashboard-focus-target');
+  }, 2200);
+
+  hasAppliedBudgetFocus = true;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
-  applyDateMasks();
   fillBudgetMonthOptions();
-  setupDatePickerTriggers();
 
   const budgetForm = document.getElementById('budgetForm');
   const budgetList = document.getElementById('budgetList');
-  const cancelBudgetEditBtn = document.getElementById('cancelBudgetEditBtn');
-
-  cancelBudgetEditBtn?.addEventListener('click', () => {
-    resetBudgetForm(budgetForm);
-    window.NetoUI?.clearMessage(budgetForm);
-  });
+  const editBudgetForm = document.getElementById('editBudgetForm');
+  const editBudgetModal = document.getElementById('editBudgetModal');
+  const deleteBudgetModal = document.getElementById('deleteBudgetModal');
+  const confirmDeleteBudgetBtn = document.getElementById('confirmDeleteBudgetBtn');
 
   budgetList?.addEventListener('click', async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    if (!(target instanceof Element)) return;
 
     const editBtn = target.closest('.edit-budget-btn');
     if (editBtn instanceof HTMLButtonElement) {
-      editingBudgetId = editBtn.dataset.id || null;
-      setBudgetFormMode(true);
-      setBudgetFormValues(budgetForm, {
-        category: editBtn.dataset.category,
-        limitAmount: editBtn.dataset.limit,
-        currency: editBtn.dataset.currency,
-        month: editBtn.dataset.month,
-      });
-      budgetForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      openEditBudgetModal(editBtn);
       return;
     }
 
     const deleteBtn = target.closest('.delete-budget-btn');
     if (!(deleteBtn instanceof HTMLButtonElement)) return;
+    openDeleteBudgetModal(deleteBtn);
+  });
 
-    const budgetId = deleteBtn.dataset.id;
-    if (!budgetId) return;
+  if (editBudgetModal) {
+    editBudgetModal.addEventListener('hidden.bs.modal', () => {
+      editingBudgetId = null;
+      if (editBudgetForm instanceof HTMLFormElement) {
+        editBudgetForm.reset();
+        window.NetoUI?.clearMessage(editBudgetForm);
+      }
+    });
+  }
 
-    const category = deleteBtn.dataset.category || 'este presupuesto';
-    const month = deleteBtn.dataset.month || '-';
-    const confirmed = window.confirm(`¿Seguro que querés borrar el presupuesto de ${category} (${month})?`);
-    if (!confirmed) return;
+  confirmDeleteBudgetBtn?.addEventListener('click', async () => {
+    if (!deletingBudgetId) return;
+
+    const originalContent = confirmDeleteBudgetBtn.innerHTML;
+    confirmDeleteBudgetBtn.disabled = true;
+    confirmDeleteBudgetBtn.innerHTML = 'Borrando...';
 
     try {
-      await window.NetoApi.deleteBudget(budgetId);
-      if (editingBudgetId === budgetId) {
-        resetBudgetForm(budgetForm);
-      }
+      await window.NetoApi.deleteBudget(deletingBudgetId);
+      deletingBudgetId = null;
       await refreshPlanningData();
+
+      if (deleteBudgetModal && typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getOrCreateInstance(deleteBudgetModal).hide();
+      }
+
       window.NetoUI?.showMessage(budgetForm, 'Presupuesto borrado.', 'success');
     } catch (error) {
       window.NetoUI?.showMessage(budgetForm, error.message || 'No se pudo borrar el presupuesto.', 'error');
+    } finally {
+      confirmDeleteBudgetBtn.disabled = false;
+      confirmDeleteBudgetBtn.innerHTML = originalContent;
     }
   });
+
+  if (deleteBudgetModal) {
+    deleteBudgetModal.addEventListener('hidden.bs.modal', () => {
+      deletingBudgetId = null;
+    });
+  }
 
   budgetForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -399,15 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
         month: monthValue,
       };
 
-      if (editingBudgetId) {
-        await window.NetoApi.updateBudget(editingBudgetId, payload);
-        resetBudgetForm(form);
-        window.NetoUI?.showMessage(form, 'Presupuesto actualizado.', 'success');
-      } else {
-        await window.NetoApi.createBudget(payload);
-        resetBudgetForm(form);
-        window.NetoUI?.showMessage(form, 'Presupuesto guardado.', 'success');
-      }
+      await window.NetoApi.createBudget(payload);
+      form.reset();
+      window.NetoUI?.showMessage(form, 'Presupuesto guardado.', 'success');
 
       await refreshPlanningData();
     } catch (error) {
@@ -415,29 +355,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('goalForm')?.addEventListener('submit', async (event) => {
+  editBudgetForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     window.NetoUI?.clearMessage(form);
 
+    if (!editingBudgetId) {
+      window.NetoUI?.showMessage(form, 'No hay presupuesto seleccionado para editar.', 'error');
+      return;
+    }
+
     try {
-      const apiDeadline = parseDateToApi(form.goalDeadline.value);
-      if (!apiDeadline) {
-        window.NetoUI?.showMessage(form, 'Fecha inválida. Selecciona una fecha válida.', 'error');
+      const selectedMonth = form.budgetMonthSelect.value;
+      const selectedYear = form.budgetYearSelect.value;
+      const monthValue = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : '';
+      if (!monthValue) {
+        window.NetoUI?.showMessage(form, 'Selecciona mes y año para continuar.', 'error');
         return;
       }
 
-      await window.NetoApi.createGoal({
-        title: form.goalTitle.value,
-        targetAmount: Number(form.goalAmount.value),
-        currency: form.goalCurrency.value,
-        deadline: apiDeadline,
+      await window.NetoApi.updateBudget(editingBudgetId, {
+        category: form.budgetCategory.value,
+        limitAmount: Number(form.budgetAmount.value),
+        currency: form.budgetCurrency.value,
+        month: monthValue,
       });
-      form.reset();
-      window.NetoUI?.showMessage(form, 'Meta guardada.', 'success');
-      refreshPlanningData();
+
+      await refreshPlanningData();
+      window.NetoUI?.showMessage(budgetForm, 'Presupuesto actualizado.', 'success');
+
+      if (editBudgetModal && typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getOrCreateInstance(editBudgetModal).hide();
+      }
     } catch (error) {
-      window.NetoUI?.showMessage(form, error.message || 'No se pudo guardar la meta.', 'error');
+      window.NetoUI?.showMessage(form, error.message || 'No se pudo actualizar el presupuesto.', 'error');
     }
   });
 
