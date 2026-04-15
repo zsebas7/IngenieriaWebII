@@ -12,6 +12,8 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { ExportsModule } from './exports/exports.module';
 import { ExchangeRateModule } from './exchange-rate/exchange-rate.module';
+import { AiChatModule } from './ai-chat/ai-chat.module';
+import { ChatModule } from './chat/chat.module';
 import { Controller, Get } from '@nestjs/common';
 
 @Controller()
@@ -36,6 +38,8 @@ class HealthController {
     RecommendationsModule,
     ExportsModule,
     ExchangeRateModule,
+    AiChatModule,
+    ChatModule,
   ],
   controllers: [HealthController],
 })

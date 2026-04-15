@@ -258,12 +258,16 @@ function renderRecommendations(items) {
   const container = document.getElementById('recommendations');
   if (!container) return;
 
-  if (!items.length) {
-    container.innerHTML = '<p class="text-secondary">Todavía no hay recomendaciones.</p>';
+  const advisorRecommendations = Array.isArray(items)
+    ? items.filter((item) => String(item?.source || '').startsWith('advisor:'))
+    : [];
+
+  if (!advisorRecommendations.length) {
+    container.innerHTML = '<p class="text-secondary">Todavía no hay recomendaciones de tu asesor.</p>';
     return;
   }
 
-  container.innerHTML = items
+  container.innerHTML = advisorRecommendations
     .slice(0, 3)
     .map(
       (item) => `
@@ -357,11 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
   monthInput.addEventListener('change', async () => {
     syncMonthChip();
     await loadDashboard();
-  });
-
-  document.getElementById('generateRecommendation')?.addEventListener('click', async () => {
-    await window.NetoApi.generateRecommendation();
-    loadDashboard();
   });
 
   loadDashboard();

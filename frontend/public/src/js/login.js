@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    localStorage.setItem('neto_access_token', payload.accessToken);
-    localStorage.setItem('neto_refresh_token', payload.refreshToken);
-    localStorage.setItem('neto_user', JSON.stringify(payload.user));
+    sessionStorage.setItem('neto_access_token', payload.accessToken);
+    sessionStorage.setItem('neto_refresh_token', payload.refreshToken);
+    sessionStorage.setItem('neto_user', JSON.stringify(payload.user));
   }
 
   if (localPreviewBlock && localPreviewAccess) {
@@ -50,7 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
         email: form.email.value,
         password: form.password.value,
       });
-      window.NetoAuth.saveAuth(payload);
+      if (typeof window.NetoAuth?.saveAuth === 'function') {
+        window.NetoAuth.saveAuth(payload);
+      } else {
+        sessionStorage.setItem('neto_access_token', payload.accessToken);
+        sessionStorage.setItem('neto_refresh_token', payload.refreshToken);
+        sessionStorage.setItem('neto_user', JSON.stringify(payload.user));
+      }
       if (payload.user.role === 'ADMIN') {
         window.location.href = 'admin.html';
       } else if (payload.user.role === 'ADVISOR') {

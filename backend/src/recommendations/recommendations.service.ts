@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import axios from 'axios';
 import { Recommendation } from '../entities/recommendation.entity';
 import { Expense } from '../entities/expense.entity';
@@ -46,6 +46,53 @@ export class RecommendationsService {
       order: { createdAt: 'DESC' },
       take: 20,
     });
+  }
+
+  listAdvisorForUser(userId: string) {
+    return this.recommendationsRepository.find({
+      where: {
+        user: { id: userId },
+        source: Like('advisor:%'),
+      },
+      order: { createdAt: 'DESC' },
+      take: 50,
+    });
+  }
+
+  async createAdvisorRecommendation(advisorId: string, userId: string, content: string) {
+    const [advisor, user] = await Promise.all([
+      this.usersRepository.findOne({ where: { id: advisorId }, select: ['id', 'fullName'] }),
+      this.usersRepository.findOneBy({ id: userId }),
+    ]);
+
+    if (!advisor) {
+      throw new NotFoundException('Asesor no encontrado');
+    }
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const recommendation = this.recommendationsRepository.create({
+      user,
+      source: `advisor:${advisor.fullName}`,
+      content,
+    });
+
+    return this.recommendationsRepository.save(recommendation);
+  }
+
+  async removeAdvisorRecommendation(recommendationId: string) {
+    const recommendation = await this.recommendationsRepository.findOne({
+      where: { id: recommendationId },
+    });
+
+    if (!recommendation || !String(recommendation.source || '').startsWith('advisor:')) {
+      throw new NotFoundException('Recomendación de asesor no encontrada');
+    }
+
+    await this.recommendationsRepository.remove(recommendation);
+    return { success: true };
   }
 
   private async generateWithOpenAi(summary: Array<{ merchant: string; category: string; amountArs: number }>) {

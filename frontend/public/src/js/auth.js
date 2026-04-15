@@ -1,7 +1,38 @@
-function saveAuth(payload) {
-  localStorage.setItem('neto_access_token', payload.accessToken);
-  localStorage.setItem('neto_refresh_token', payload.refreshToken);
-  localStorage.setItem('neto_user', JSON.stringify(payload.user));
+(() => {
+const AUTH_KEYS = ['neto_access_token', 'neto_refresh_token', 'neto_user'];
+
+function getStoredAuthValue(key) {
+  const sessionValue = sessionStorage.getItem(key);
+  if (sessionValue !== null) return sessionValue;
+  return localStorage.getItem(key);
+}
+
+function hasAuthInStorage(storage) {
+  return AUTH_KEYS.some((key) => storage.getItem(key) !== null);
+}
+
+function getActiveAuthStorage() {
+  if (hasAuthInStorage(sessionStorage)) return sessionStorage;
+  if (hasAuthInStorage(localStorage)) return localStorage;
+  return sessionStorage;
+}
+
+function writeAuth(storage, payload) {
+  storage.setItem('neto_access_token', payload.accessToken);
+  storage.setItem('neto_refresh_token', payload.refreshToken);
+  storage.setItem('neto_user', JSON.stringify(payload.user));
+}
+
+function saveAuth(payload, options = {}) {
+  const persist = Boolean(options.persist);
+  if (persist) {
+    clearAuthState();
+    writeAuth(localStorage, payload);
+    return;
+  }
+
+  AUTH_KEYS.forEach((key) => sessionStorage.removeItem(key));
+  writeAuth(sessionStorage, payload);
 }
 
 function isLocalPreviewHost() {
@@ -52,28 +83,83 @@ function maybeAutoEnableLocalPreview() {
 }
 
 function getCurrentUser() {
-  const raw = localStorage.getItem('neto_user');
+  const raw = getStoredAuthValue('neto_user');
   return raw ? JSON.parse(raw) : null;
 }
 
+function getAccessToken() {
+  return getStoredAuthValue('neto_access_token');
+}
+
+function getRefreshToken() {
+  return getStoredAuthValue('neto_refresh_token');
+}
+
+function setCurrentUser(user) {
+  const storage = getActiveAuthStorage();
+  storage.setItem('neto_user', JSON.stringify(user));
+}
+
+function clearAuthState() {
+  AUTH_KEYS.forEach((key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+}
+
+function decodeJwtPayload(token) {
+  if (!token || !token.includes('.')) return null;
+
+  try {
+    const payload = token.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    const decoded = window.atob(padded);
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+function isAccessTokenExpired(token) {
+  const payload = decodeJwtPayload(token);
+  if (!payload || typeof payload.exp !== 'number') {
+    return true;
+  }
+
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  const safetyWindow = 10;
+  return nowInSeconds >= payload.exp - safetyWindow;
+}
+
 function requireAuth() {
-  maybeAutoEnableLocalPreview();
+  const localPreviewEnabled = maybeAutoEnableLocalPreview();
+  if (localPreviewEnabled) {
+    return;
+  }
+
   const user = getCurrentUser();
-  if (!user) {
-    window.location.href = 'login.html';
+  const accessToken = getAccessToken();
+
+  if (!user || !accessToken || isAccessTokenExpired(accessToken)) {
+    clearAuthState();
+    window.location.href = 'index.html';
   }
 }
 
 window.NetoAuth = {
   saveAuth,
   getCurrentUser,
+  getAccessToken,
+  getRefreshToken,
+  setCurrentUser,
+  clearAuthState,
   requireAuth,
   enableLocalPreview,
   canUseLocalPreview: isLocalPreviewHost,
   logout() {
-    localStorage.removeItem('neto_access_token');
-    localStorage.removeItem('neto_refresh_token');
-    localStorage.removeItem('neto_user');
+    clearAuthState();
     window.location.href = 'index.html';
   },
 };
+})();

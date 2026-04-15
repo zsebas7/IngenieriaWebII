@@ -6,20 +6,65 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Role } from '../common/enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcryptjs';
+import { UserSegmentationService } from './user-segmentation.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly userSegmentationService: UserSegmentationService,
+  ) {}
 
-  findAll() {
+  async findAll() {
+    const internalUsers = await this.usersRepository.find({
+      select: ['id', 'role'],
+    });
+
+    const targetUsers = internalUsers.filter((user) => user.role === Role.USER);
+    await Promise.all(targetUsers.map((user) => this.userSegmentationService.refreshForUser(user.id)));
+
     return this.usersRepository.find({
-      select: ['id', 'fullName', 'email', 'role', 'isActive', 'createdAt', 'language', 'preferredCurrency'],
+      select: [
+        'id',
+        'fullName',
+        'email',
+        'role',
+        'isActive',
+        'createdAt',
+        'language',
+        'preferredCurrency',
+        'spendingProfile',
+      ],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findById(id: string) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: [
+        'id',
+        'fullName',
+        'email',
+        'role',
+        'isActive',
+        'createdAt',
+        'language',
+        'preferredCurrency',
+        'spendingProfile',
+      ],
+    });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return user;
+  }
+
+  async findMeById(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: ['id', 'fullName', 'email', 'role', 'isActive', 'createdAt', 'language', 'preferredCurrency'],
+    });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
@@ -28,7 +73,7 @@ export class UsersService {
 
   async updateMe(id: string, dto: UpdateProfileDto) {
     await this.usersRepository.update(id, dto);
-    return this.findById(id);
+    return this.findMeById(id);
   }
 
   async changeMyPassword(id: string, dto: ChangePasswordDto) {

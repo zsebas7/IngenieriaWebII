@@ -5,18 +5,22 @@ import { Budget } from '../entities/budget.entity';
 import { User } from '../entities/user.entity';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { UserSegmentationService } from '../users/user-segmentation.service';
 
 @Injectable()
 export class BudgetsService {
   constructor(
     @InjectRepository(Budget) private readonly budgetsRepository: Repository<Budget>,
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly userSegmentationService: UserSegmentationService,
   ) {}
 
   async create(userId: string, dto: CreateBudgetDto) {
     const user = await this.usersRepository.findOneByOrFail({ id: userId });
     const budget = this.budgetsRepository.create({ ...dto, user });
-    return this.budgetsRepository.save(budget);
+    const created = await this.budgetsRepository.save(budget);
+    await this.userSegmentationService.refreshForUser(userId);
+    return created;
   }
 
   findMine(userId: string) {
@@ -36,7 +40,9 @@ export class BudgetsService {
     }
 
     Object.assign(budget, dto);
-    return this.budgetsRepository.save(budget);
+    const updated = await this.budgetsRepository.save(budget);
+    await this.userSegmentationService.refreshForUser(userId);
+    return updated;
   }
 
   async remove(userId: string, budgetId: string) {
@@ -49,6 +55,7 @@ export class BudgetsService {
     }
 
     await this.budgetsRepository.remove(budget);
+    await this.userSegmentationService.refreshForUser(userId);
     return { success: true };
   }
 }

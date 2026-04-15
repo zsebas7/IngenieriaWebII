@@ -1,5 +1,3 @@
-const ADVISOR_RECOMMENDATIONS_KEY = 'neto_advisor_recommendations';
-
 const advisorState = {
   currentUser: null,
   users: [],
@@ -46,6 +44,23 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function getSpendingProfileMeta(profile) {
+  if (profile === 'SAVER') {
+    return { label: 'Ahorrador', chipClass: 'good' };
+  }
+
+  if (profile === 'SPENDER') {
+    return { label: 'Gastador', chipClass: 'danger' };
+  }
+
+  return { label: 'Equilibrado', chipClass: 'warn' };
+}
+
+function spendingProfileChipMarkup(profile) {
+  const meta = getSpendingProfileMeta(profile);
+  return `<span class="status-chip ${meta.chipClass}">${escapeHtml(meta.label)}</span>`;
 }
 
 function formatArs(value) {
@@ -121,20 +136,6 @@ function destroyChart(key) {
     advisorState.charts[key].destroy();
     advisorState.charts[key] = null;
   }
-}
-
-function readRecommendationsStore() {
-  try {
-    const raw = localStorage.getItem(ADVISOR_RECOMMENDATIONS_KEY);
-    const parsed = raw ? JSON.parse(raw) : {};
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-function writeRecommendationsStore(store) {
-  localStorage.setItem(ADVISOR_RECOMMENDATIONS_KEY, JSON.stringify(store));
 }
 
 function getUserMetrics(expenses) {
@@ -300,7 +301,12 @@ function renderUsersTable() {
 
       return `
       <tr>
-        <td>${escapeHtml(user.fullName)}</td>
+        <td>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <span>${escapeHtml(user.fullName)}</span>
+            ${spendingProfileChipMarkup(user.spendingProfile)}
+          </div>
+        </td>
         <td>${escapeHtml(user.email)}</td>
         <td><span class="status-chip advisor-role-chip">${escapeHtml(user.role)}</span></td>
         <td><span class="status-chip ${user.isActive ? 'good' : 'warn'}">${user.isActive ? 'Activo' : 'Inactivo'}</span></td>
@@ -469,6 +475,20 @@ function renderRecommendations() {
     .join('');
 }
 
+async function loadRecommendationsForSelectedUser(force = false) {
+  if (!advisorState.selectedUserId) {
+    return;
+  }
+
+  const hasCached = Array.isArray(advisorState.recommendations[advisorState.selectedUserId]);
+  if (hasCached && !force) {
+    return;
+  }
+
+  const items = await window.NetoApi.listAdvisorRecommendationsForUser(advisorState.selectedUserId);
+  advisorState.recommendations[advisorState.selectedUserId] = Array.isArray(items) ? items : [];
+}
+
 function renderDetailPage() {
   if (!isDetailPage()) return;
 
@@ -496,8 +516,14 @@ function renderDetailPage() {
 
   const detailName = document.getElementById('advisorDetailName');
   const detailEmail = document.getElementById('advisorDetailEmail');
+  const detailSpendingProfile = document.getElementById('advisorDetailSpendingProfile');
   if (detailName) detailName.textContent = user.fullName;
   if (detailEmail) detailEmail.textContent = user.email;
+  if (detailSpendingProfile) {
+    const profile = getSpendingProfileMeta(user.spendingProfile);
+    detailSpendingProfile.textContent = profile.label;
+    detailSpendingProfile.className = `status-chip ${profile.chipClass}`;
+  }
 
   const roleNode = document.getElementById('advisorDetailRole');
   if (roleNode) {
@@ -528,27 +554,23 @@ function renderDetailPage() {
   renderRecommendations();
 }
 
-function saveRecommendation(text) {
+async function saveRecommendation(text) {
   if (!advisorState.selectedUserId) return;
 
-  const next = {
-    id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+  await window.NetoApi.createAdvisorRecommendation({
+    userId: advisorState.selectedUserId,
     content: text,
-    createdAt: new Date().toISOString(),
-    advisorName: advisorState.currentUser?.fullName || 'Asesor',
-  };
+  });
 
-  const current = advisorState.recommendations[advisorState.selectedUserId] || [];
-  advisorState.recommendations[advisorState.selectedUserId] = [next, ...current].slice(0, 25);
-  writeRecommendationsStore(advisorState.recommendations);
+  await loadRecommendationsForSelectedUser(true);
 }
 
-function removeRecommendation(recommendationId) {
+async function removeRecommendation(recommendationId) {
   if (!advisorState.selectedUserId || !recommendationId) return;
 
+  await window.NetoApi.deleteRecommendation(recommendationId);
   const current = advisorState.recommendations[advisorState.selectedUserId] || [];
   advisorState.recommendations[advisorState.selectedUserId] = current.filter((item) => item.id !== recommendationId);
-  writeRecommendationsStore(advisorState.recommendations);
 }
 
 function bindUsersPageEvents() {
@@ -591,9 +613,10 @@ function bindDetailPageEvents() {
 
   const userSelect = document.getElementById('advisorDetailUserSelect');
   if (userSelect instanceof HTMLSelectElement) {
-    userSelect.addEventListener('change', (event) => {
+    userSelect.addEventListener('change', async (event) => {
       advisorState.selectedUserId = event.target.value || null;
       syncSelectedUserQueryParam();
+      await loadRecommendationsForSelectedUser();
       renderDetailPage();
     });
   }
@@ -618,7 +641,7 @@ function bindDetailPageEvents() {
     renderDetailPage();
   });
 
-  document.getElementById('advisorRecommendationForm')?.addEventListener('submit', (event) => {
+  document.getElementById('advisorRecommendationForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const input = document.getElementById('advisorRecommendationInput');
     if (!(input instanceof HTMLTextAreaElement)) return;
@@ -628,18 +651,28 @@ function bindDetailPageEvents() {
       return;
     }
 
-    saveRecommendation(content);
-    input.value = '';
-    renderRecommendations();
+    try {
+      await saveRecommendation(content);
+      input.value = '';
+      renderRecommendations();
+    } catch (error) {
+      const mainNode = document.querySelector('main');
+      window.NetoUI.showMessage(mainNode, error.message || 'No fue posible guardar la recomendación.', 'error');
+    }
   });
 
-  document.getElementById('advisorRecommendationList')?.addEventListener('click', (event) => {
+  document.getElementById('advisorRecommendationList')?.addEventListener('click', async (event) => {
     const button = event.target.closest('button[data-recommendation-id]');
     if (!button) return;
 
     const recommendationId = button.getAttribute('data-recommendation-id');
-    removeRecommendation(recommendationId);
-    renderRecommendations();
+    try {
+      await removeRecommendation(recommendationId);
+      renderRecommendations();
+    } catch (error) {
+      const mainNode = document.querySelector('main');
+      window.NetoUI.showMessage(mainNode, error.message || 'No fue posible eliminar la recomendación.', 'error');
+    }
   });
 }
 
@@ -695,7 +728,7 @@ async function initializeAdvisorScreen() {
   }
 
   advisorState.currentUser = currentUser;
-  advisorState.recommendations = readRecommendationsStore();
+  advisorState.recommendations = {};
 
   const queryParams = new URLSearchParams(window.location.search);
   advisorState.selectedUserId = queryParams.get('userId');
@@ -705,6 +738,10 @@ async function initializeAdvisorScreen() {
   bindThemeObserver();
 
   await loadAdvisorData();
+
+  if (isDetailPage() && advisorState.selectedUserId) {
+    await loadRecommendationsForSelectedUser();
+  }
 
   if (advisorState.selectedUserId && !advisorState.users.some((user) => user.id === advisorState.selectedUserId)) {
     advisorState.selectedUserId = null;

@@ -6,6 +6,7 @@ import { User } from '../entities/user.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
+import { UserSegmentationService } from '../users/user-segmentation.service';
 
 @Injectable()
 export class ExpensesService {
@@ -13,6 +14,7 @@ export class ExpensesService {
     @InjectRepository(Expense) private readonly expensesRepository: Repository<Expense>,
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly exchangeRateService: ExchangeRateService,
+    private readonly userSegmentationService: UserSegmentationService,
   ) {}
 
   async create(userId: string, dto: CreateExpenseDto, source = 'manual', ocrRaw?: Record<string, unknown>) {
@@ -29,7 +31,9 @@ export class ExpensesService {
       ticketImageUrl: null,
     });
 
-    return this.expensesRepository.save(expense);
+    const created = await this.expensesRepository.save(expense);
+    await this.userSegmentationService.refreshForUser(userId);
+    return created;
   }
 
   async findAll(userId: string, role: string, query: { month?: string; category?: string }) {
@@ -76,12 +80,16 @@ export class ExpensesService {
       expense.amountArs = await this.exchangeRateService.convertToArs(amount, currency);
     }
 
-    return this.expensesRepository.save(expense);
+    const updated = await this.expensesRepository.save(expense);
+    await this.userSegmentationService.refreshForUser(expense.user.id);
+    return updated;
   }
 
   async remove(id: string, userId: string, role: string) {
     const expense = await this.findOneForUser(id, userId, role);
+    const ownerId = expense.user.id;
     await this.expensesRepository.delete(expense.id);
+    await this.userSegmentationService.refreshForUser(ownerId);
     return { success: true };
   }
 }

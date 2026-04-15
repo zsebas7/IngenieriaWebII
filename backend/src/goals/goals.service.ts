@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Goal } from '../entities/goal.entity';
@@ -50,6 +50,26 @@ export class GoalsService {
 
     const currentSaved = Number(goal.savedAmount || 0);
     goal.savedAmount = currentSaved + Number(amount || 0);
+    return this.goalsRepository.save(goal);
+  }
+
+  async withdrawSavings(userId: string, goalId: string, amount: number) {
+    const goal = await this.goalsRepository.findOne({
+      where: { id: goalId, user: { id: userId } },
+    });
+
+    if (!goal) {
+      throw new NotFoundException('Meta no encontrada.');
+    }
+
+    const currentSaved = Number(goal.savedAmount || 0);
+    const withdrawAmount = Number(amount || 0);
+
+    if (withdrawAmount > currentSaved) {
+      throw new BadRequestException('No puedes retirar mas de lo ahorrado en la meta.');
+    }
+
+    goal.savedAmount = currentSaved - withdrawAmount;
     return this.goalsRepository.save(goal);
   }
 

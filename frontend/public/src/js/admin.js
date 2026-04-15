@@ -9,16 +9,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderUsers();
 });
 
+function getSpendingProfileLabel(profile) {
+  if (profile === 'SAVER') return { label: 'Ahorrador', chipClass: 'good' };
+  if (profile === 'SPENDER') return { label: 'Gastador', chipClass: 'danger' };
+  return { label: 'Equilibrado', chipClass: 'warn' };
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function renderUsers() {
   const users = await window.NetoApi.listUsers();
   const tbody = document.getElementById('adminUsersBody');
 
   tbody.innerHTML = users
-    .map(
-      (item) => `
+    .map((item) => {
+      const profileMeta = getSpendingProfileLabel(item.spendingProfile);
+      return `
       <tr>
-        <td>${item.fullName}</td>
-        <td>${item.email}</td>
+        <td>${escapeHtml(item.fullName)}</td>
+        <td>${escapeHtml(item.email)}</td>
+        <td>
+          <span class="status-chip ${profileMeta.chipClass}">
+            ${profileMeta.label}
+          </span>
+        </td>
         <td>
           <select class="form-select" onchange="updateRole('${item.id}', this.value)">
             <option ${item.role === 'USER' ? 'selected' : ''} value="USER">USER</option>
@@ -33,8 +54,8 @@ async function renderUsers() {
             ${item.isActive ? 'Desactivar' : 'Activar'}
           </button>
         </td>
-      </tr>`,
-    )
+      </tr>`;
+    })
     .join('');
 }
 

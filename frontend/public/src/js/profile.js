@@ -56,7 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         preferredCurrency: form.preferredCurrency.value,
       });
 
-      localStorage.setItem('neto_user', JSON.stringify(payload));
+      if (typeof window.NetoAuth?.setCurrentUser === 'function') {
+        window.NetoAuth.setCurrentUser(payload);
+      } else {
+        localStorage.setItem('neto_user', JSON.stringify(payload));
+      }
       updateTopSummary(payload);
       window.NetoUI?.clearMessage(form);
       showProfileToast('Perfil actualizado correctamente.', 'success');

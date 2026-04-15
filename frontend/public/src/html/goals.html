@@ -181,6 +181,30 @@
       </div>
     </div>
 
+    <div class="modal fade" id="withdrawSavingsModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content panel-card">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Retirar ahorro</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body pt-2">
+            <div id="withdrawSavingsSummary" class="empty-state py-2 mb-3">Retirando ahorro de la meta seleccionada.</div>
+            <form id="withdrawSavingsForm" class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Monto a retirar</label>
+                <input class="form-control form-control-modern no-spinner" name="withdrawAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-neto" type="submit">Retirar ahorro</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="../js/config.js"></script>
     <script src="../js/theme.js"></script>
     <script src="../js/nav.js"></script>

@@ -14,7 +14,7 @@ export class UsersController {
 
   @Get('me')
   me(@Req() req: { user: { id: string } }) {
-    return this.usersService.findById(req.user.id);
+    return this.usersService.findMeById(req.user.id);
   }
 
   @Patch('me')

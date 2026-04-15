@@ -6,7 +6,7 @@ Proyecto de Ingenieria Web II (2026).
 - Frontend: HTML, CSS, JavaScript (vanilla) + Bootstrap 5 + Chart.js
 - Backend: NestJS + TypeORM + PostgreSQL
 - OCR: OCR.Space API
-- IA recomendaciones: OpenAI (gpt-4o-mini)
+- IA chat y recomendaciones: Groq (llama-3.3-70b-versatile) con fallback OpenAI
 - Deploy: Backend en Railway, Frontend en Netlify
 
 ## Estructura
@@ -40,6 +40,8 @@ Copiar `backend/.env.example` a `backend/.env` y completar:
 - `OCR_SPACE_API_KEY`
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
+- `GROQ_API_KEY`
+- `GROQ_MODEL`
 - `FORMSPREE_ENDPOINT`
 
 ## Instalacion local
@@ -98,6 +100,10 @@ Usuarios demo:
 - `GET/POST /goals`
 - `POST /recommendations/generate`
 - `GET /recommendations`
+- `GET /ai-chat/sessions`
+- `POST /ai-chat/sessions`
+- `GET /ai-chat/sessions/:id/messages`
+- `POST /ai-chat/sessions/:id/messages`
 - `GET /exports/csv`
 - `GET /exports/pdf`
 - `GET /exports/xlsx`

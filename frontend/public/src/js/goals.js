@@ -1,6 +1,7 @@
 let editingGoalId = null;
 let deletingGoalId = null;
 let savingsGoalId = null;
+let withdrawalGoalId = null;
 let hasAppliedGoalFocus = false;
 
 function formatMoney(currency, value) {
@@ -208,6 +209,23 @@ function openAddSavingsModal(button) {
   bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
+function openWithdrawSavingsModal(button) {
+  const form = document.getElementById('withdrawSavingsForm');
+  if (!(form instanceof HTMLFormElement)) return;
+
+  withdrawalGoalId = button.dataset.id || null;
+  form.withdrawAmount.value = '';
+
+  const summary = document.getElementById('withdrawSavingsSummary');
+  if (summary) {
+    summary.textContent = `Meta: ${button.dataset.title || '-'} | Ahorrado actual: ${formatMoney(button.dataset.currency || 'ARS', Number(button.dataset.savedAmount || 0))}`;
+  }
+
+  const modalElement = document.getElementById('withdrawSavingsModal');
+  if (!modalElement || typeof bootstrap === 'undefined') return;
+  bootstrap.Modal.getOrCreateInstance(modalElement).show();
+}
+
 function renderGoalCards(goals) {
   if (!Array.isArray(goals) || goals.length === 0) {
     return '<div class="empty-state">No hay metas para mostrar.</div>';
@@ -235,6 +253,7 @@ function renderGoalCards(goals) {
             <div class="planning-item-actions">
               <span class="status-chip ${statusClass}">${statusText}</span>
               <button class="btn btn-sm btn-neto add-savings-btn" type="button" data-id="${escapeHtmlAttr(goal.id)}" data-title="${escapeHtmlAttr(goal.title)}" data-currency="${escapeHtmlAttr(goal.currency || 'ARS')}" data-saved-amount="${escapeHtmlAttr(goal.savedAmount)}" title="Cargar ahorro" aria-label="Cargar ahorro">Cargar ahorro</button>
+              <button class="btn btn-sm btn-outline-secondary withdraw-savings-btn" type="button" data-id="${escapeHtmlAttr(goal.id)}" data-title="${escapeHtmlAttr(goal.title)}" data-currency="${escapeHtmlAttr(goal.currency || 'ARS')}" data-saved-amount="${escapeHtmlAttr(goal.savedAmount)}" title="Retirar ahorro" aria-label="Retirar ahorro" ${saved <= 0 ? 'disabled' : ''}>Retirar</button>
               <button class="btn btn-sm btn-outline-primary icon-action-btn edit-goal-btn" type="button" data-id="${escapeHtmlAttr(goal.id)}" data-title="${escapeHtmlAttr(goal.title)}" data-target-amount="${escapeHtmlAttr(goal.targetAmount)}" data-currency="${escapeHtmlAttr(goal.currency || 'ARS')}" data-deadline="${escapeHtmlAttr(goal.deadline)}" title="Editar meta" aria-label="Editar meta">${pencilIcon()}</button>
               <button class="btn btn-sm btn-outline-danger icon-action-btn delete-goal-btn" type="button" data-id="${escapeHtmlAttr(goal.id)}" data-title="${escapeHtmlAttr(goal.title)}" data-deadline="${escapeHtmlAttr(goal.deadline)}" title="Borrar meta" aria-label="Borrar meta">${trashIcon()}</button>
             </div>
@@ -342,6 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteGoalModal = document.getElementById('deleteGoalModal');
   const addSavingsModal = document.getElementById('addSavingsModal');
   const addSavingsForm = document.getElementById('addSavingsForm');
+  const withdrawSavingsModal = document.getElementById('withdrawSavingsModal');
+  const withdrawSavingsForm = document.getElementById('withdrawSavingsForm');
   const confirmDeleteGoalBtn = document.getElementById('confirmDeleteGoalBtn');
 
   goalList?.addEventListener('click', (event) => {
@@ -357,6 +378,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const addSavingsBtn = target.closest('.add-savings-btn');
     if (addSavingsBtn instanceof HTMLButtonElement) {
       openAddSavingsModal(addSavingsBtn);
+      return;
+    }
+
+    const withdrawSavingsBtn = target.closest('.withdraw-savings-btn');
+    if (withdrawSavingsBtn instanceof HTMLButtonElement) {
+      openWithdrawSavingsModal(withdrawSavingsBtn);
       return;
     }
 
@@ -378,6 +405,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const addSavingsBtn = target.closest('.add-savings-btn');
     if (addSavingsBtn instanceof HTMLButtonElement) {
       openAddSavingsModal(addSavingsBtn);
+      return;
+    }
+
+    const withdrawSavingsBtn = target.closest('.withdraw-savings-btn');
+    if (withdrawSavingsBtn instanceof HTMLButtonElement) {
+      openWithdrawSavingsModal(withdrawSavingsBtn);
       return;
     }
 
@@ -521,6 +554,42 @@ document.addEventListener('DOMContentLoaded', () => {
       if (addSavingsForm instanceof HTMLFormElement) {
         addSavingsForm.reset();
         window.NetoUI?.clearMessage(addSavingsForm);
+      }
+    });
+  }
+
+  withdrawSavingsForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    window.NetoUI?.clearMessage(form);
+
+    if (!withdrawalGoalId) {
+      showGoalsToast('No hay meta seleccionada para retirar ahorro.', 'error');
+      return;
+    }
+
+    try {
+      await window.NetoApi.withdrawGoalSavings(withdrawalGoalId, {
+        amount: Number(form.withdrawAmount.value),
+      });
+
+      await refreshGoalsData();
+      showGoalsToast('Ahorro retirado correctamente.', 'success');
+
+      if (withdrawSavingsModal && typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getOrCreateInstance(withdrawSavingsModal).hide();
+      }
+    } catch (error) {
+      showGoalsToast(error.message || 'No se pudo retirar el ahorro.', 'error');
+    }
+  });
+
+  if (withdrawSavingsModal) {
+    withdrawSavingsModal.addEventListener('hidden.bs.modal', () => {
+      withdrawalGoalId = null;
+      if (withdrawSavingsForm instanceof HTMLFormElement) {
+        withdrawSavingsForm.reset();
+        window.NetoUI?.clearMessage(withdrawSavingsForm);
       }
     });
   }

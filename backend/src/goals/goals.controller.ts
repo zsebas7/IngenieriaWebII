@@ -30,6 +30,11 @@ export class GoalsController {
     return this.goalsService.addSavings(req.user.id, id, dto.amount);
   }
 
+  @Post(':id/withdrawals')
+  withdrawSavings(@Req() req: { user: { id: string } }, @Param('id') id: string, @Body() dto: AddGoalSavingsDto) {
+    return this.goalsService.withdrawSavings(req.user.id, id, dto.amount);
+  }
+
   @Delete(':id')
   remove(@Req() req: { user: { id: string } }, @Param('id') id: string) {
     return this.goalsService.remove(req.user.id, id);
