@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | NETO</title>
+    <title>Acceso | NETO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
@@ -12,28 +12,39 @@
       <div class="container">
         <div class="auth-card row g-0">
           <div class="col-lg-5 d-none d-lg-block">
-            <section class="auth-side h-100 d-flex flex-column justify-content-between">
-              <div>
+            <section class="auth-side h-100 d-flex flex-column">
+              <div class="auth-side-top">
                 <a class="brand-lockup text-white" href="../public/index.html">
                   <span class="logo-mark" aria-hidden="true"></span>
                   <span>NETO</span>
                 </a>
-                <h2 class="mt-4">Bienvenido de nuevo</h2>
-                <p class="mb-0">Toma decisiones con una vista clara de tus movimientos y metas.</p>
+                <h2 class="auth-welcome-title mt-4 mb-0">¡Bienvenido!</h2>
               </div>
-              <ul>
-                <li>Dashboard mensual</li>
-                <li>OCR de tickets</li>
-                <li>Recomendaciónes personalizadas</li>
+
+              <div class="auth-brand-hero" aria-hidden="true">
+                <span class="logo-mark logo-mark-hero"></span>
+                <p class="auth-brand-word mb-0">NETO</p>
+              </div>
+
+              <p class="auth-side-tagline">Toma decisiones con una vista clara de tus movimientos y metas.</p>
+
+              <ul class="auth-side-list">
+                <li>Resumen mensual claro</li>
+                <li>Deteccion de tickets con IA</li>
+                <li>Consejos personalizados para ahorrar</li>
               </ul>
             </section>
           </div>
           <div class="col-lg-7">
             <section class="p-4 p-lg-5">
               <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Iniciar sesión</h1>
+                <h1 class="h3 mb-0" id="authTitle">Iniciar sesión</h1>
               </div>
-              <p class="text-secondary mb-4">Accede a tu panel financiero para continuar.</p>
+              <div class="btn-group w-100 mb-3" role="group" aria-label="Seleccionar modo de acceso">
+                <button class="btn btn-neto" id="authModeLogin" type="button">Iniciar sesión</button>
+                <button class="btn btn-outline-secondary" id="authModeRegister" type="button">Crear cuenta</button>
+              </div>
+              <p class="text-secondary mb-4" id="authIntro">Accede a tu panel financiero para continuar.</p>
               <form id="loginForm" class="d-grid gap-3">
                 <div>
                   <label class="form-label">Email</label>
@@ -45,15 +56,32 @@
                 </div>
                 <button class="btn btn-neto" type="submit">Ingresar</button>
               </form>
-              <div id="localPreviewBlock" class="local-preview-note d-none">
-                ¿Solo quieres revisar la interfaz? Entra en modo vista local sin base de datos.
-                <div class="mt-2">
-                  <button id="localPreviewAccess" class="btn btn-outline-secondary btn-sm" type="button">Entrar en modo vista local</button>
+
+              <form id="registerForm" class="d-grid gap-3 d-none">
+                <div>
+                  <label class="form-label">Nombre completo</label>
+                  <input class="form-control form-control-modern" name="fullName" placeholder="Ej: Ana Perez" required />
                 </div>
-              </div>
+                <div>
+                  <label class="form-label">Email</label>
+                  <input class="form-control form-control-modern" type="email" name="email" placeholder="tu@email.com" required />
+                </div>
+                <div>
+                  <label class="form-label">Contraseña</label>
+                  <input class="form-control form-control-modern" type="password" name="password" placeholder="Minimo 8 caracteres" required />
+                </div>
+                <div>
+                  <label class="form-label">Tipo de cuenta</label>
+                  <select class="form-select form-control-modern" name="role">
+                    <option value="USER">Usuario</option>
+                    <option value="ADVISOR">Asesor</option>
+                  </select>
+                </div>
+                <button class="btn btn-neto" type="submit">Registrarme</button>
+              </form>
               <div class="d-flex justify-content-between mt-4 small">
-                <a class="text-link" href="../public/register.html">Crear cuenta</a>
-                <a class="text-link" href="../public/forgot-password.html">Olvidé mi contraseña</a>
+                <a class="text-link" id="authSwitchLink" href="../public/login.html?mode=register">Crear cuenta</a>
+                <a class="text-link" id="forgotPasswordLink" href="../public/forgot-password.html">Olvidé mi contraseña</a>
               </div>
             </section>
           </div>

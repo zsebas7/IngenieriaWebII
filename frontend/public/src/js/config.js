@@ -2,7 +2,7 @@ const runtimeApiUrl = (window.NETO_RUNTIME_CONFIG && window.NETO_RUNTIME_CONFIG.
 const DEFAULT_API_URL = runtimeApiUrl
   ? String(runtimeApiUrl)
   : window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001'
+    ? 'http://localhost:3000'
     : 'https://ingenieriawebii-production.up.railway.app';
 const storedApiUrl = localStorage.getItem('neto_api_url') || '';
 
@@ -23,6 +23,12 @@ const route = (path) => `${NETO_BASE_PATH}${path}`;
 
 function resolveApiUrl() {
   if (!storedApiUrl) {
+    return DEFAULT_API_URL;
+  }
+
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isLegacyLocalPort = /^http:\/\/(localhost|127\.0\.0\.1):3001$/i.test(storedApiUrl);
+  if (isLocalHost && isLegacyLocalPort) {
     return DEFAULT_API_URL;
   }
 
