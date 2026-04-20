@@ -1,32 +1,15 @@
-function formatArs(value) {
-  return `ARS ${Number(value || 0).toFixed(2)}`;
-}
+const formatArs = window.NetoFormat.ars;
 
 function formatArsCompact(value) {
-  const amount = Number(value || 0);
-  const absAmount = Math.abs(amount);
-
-  if (absAmount >= 1000 && absAmount < 1000000) {
-    const inThousands = amount / 1000;
-    const thousandsFormatted = inThousands.toLocaleString('es-AR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 1,
-    });
-    return `ARS ${thousandsFormatted} mil`;
-  }
-
-  const defaultFormatted = amount.toLocaleString('es-AR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-  return `ARS ${defaultFormatted}`;
+  return window.NetoFormat.arsCompact(value);
 }
 
 let currentStatsExpenses = [];
+let currentAllExpenses = [];
 let selectedCategory = null;
 let editingExpenseId = null;
 let deletingExpenseId = null;
-const MONTH_NAMES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+let monthPicker = null;
 
 function showStatsToast(message, type = 'success') {
   if (window.NetoToast?.show) {
@@ -35,34 +18,16 @@ function showStatsToast(message, type = 'success') {
   }
 }
 
-function eyeIcon() {
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
-}
+const eyeIcon = window.NetoIcons.eye;
 
-function pencilIcon() {
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-}
+const pencilIcon = window.NetoIcons.pencil;
 
-function trashIcon() {
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
-}
+const trashIcon = window.NetoIcons.trash;
 
-function escapeHtmlAttr(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-}
+const escapeHtmlAttr = window.NetoDom.escapeHtmlAttr;
 
 function formatDateDisplay(dateValue) {
-  if (!dateValue) return '-';
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) return dateValue;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-    const [year, month, day] = dateValue.split('-');
-    return `${day}/${month}/${year}`;
-  }
-  return new Date(dateValue).toLocaleDateString('es-AR');
+  return window.NetoExpensesHelpers.formatDateDisplay(dateValue);
 }
 
 function groupExpensesByDay(expenses) {
@@ -82,34 +47,27 @@ function groupExpensesByDay(expenses) {
   };
 }
 
+function groupExpensesByMonth(expenses) {
+  const totals = {};
+  expenses.forEach((expense) => {
+    const key = String(toIsoDate(expense.expenseDate) || '').slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(key)) return;
+    totals[key] = (totals[key] || 0) + Number(expense.amountArs || 0);
+  });
+
+  const labels = Object.keys(totals).sort((a, b) => new Date(`${a}-01`) - new Date(`${b}-01`));
+  return {
+    labels: labels.map((label) => formatMonthLabel(label)),
+    values: labels.map((label) => totals[label]),
+  };
+}
+
 function parseDateToIso(value) {
-  const match = String(value || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!match) return null;
-  const [, day, month, year] = match;
-  return `${year}-${month}-${day}`;
+  return window.NetoExpensesHelpers.parseDateToApi(value);
 }
 
 function parseDateToApi(value) {
-  const trimmed = String(value || '').trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-  return parseDateToIso(trimmed);
-}
-
-function maskDateInputValue(value) {
-  const digits = String(value || '').replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
-function applyDateMasks(root = document) {
-  const dateInputs = root.querySelectorAll('input[data-date-mask="ddmmyyyy"]');
-  dateInputs.forEach((input) => {
-    input.addEventListener('input', () => {
-      const masked = maskDateInputValue(input.value);
-      if (input.value !== masked) input.value = masked;
-    });
-  });
+  return window.NetoExpensesHelpers.parseDateToApi(value);
 }
 
 function getSelectedMonth() {
@@ -118,80 +76,7 @@ function getSelectedMonth() {
 }
 
 function formatMonthLabel(monthValue) {
-  const match = String(monthValue || '').match(/^(\d{4})-(\d{2})$/);
-  if (!match) return '-';
-  const [, year, month] = match;
-  const monthIndex = Number(month) - 1;
-  if (monthIndex < 0 || monthIndex > 11) return '-';
-  return `${MONTH_NAMES_ES[monthIndex]} ${year}`;
-}
-
-function syncMonthChip() {
-  const monthInput = document.getElementById('monthInput');
-  const monthChip = document.getElementById('monthChip');
-  if (!monthInput || !monthChip) return;
-  const label = formatMonthLabel(monthInput.value);
-  monthChip.textContent = label;
-  monthChip.title = `Período seleccionado: ${label}`;
-}
-
-function ensureYearOptions(yearSelect) {
-  if (!(yearSelect instanceof HTMLSelectElement)) return;
-  if (yearSelect.options.length) return;
-
-  const currentYear = new Date().getFullYear();
-  for (let year = currentYear - 10; year <= currentYear + 5; year += 1) {
-    const option = document.createElement('option');
-    option.value = String(year);
-    option.textContent = String(year);
-    yearSelect.appendChild(option);
-  }
-}
-
-function syncPopoverFromMonthInput() {
-  const monthInput = document.getElementById('monthInput');
-  const monthSelect = document.getElementById('monthSelect');
-  const yearSelect = document.getElementById('yearSelect');
-  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
-
-  ensureYearOptions(yearSelect);
-  const match = String(monthInput.value || '').match(/^(\d{4})-(\d{2})$/);
-  if (!match) return;
-  const [, year, month] = match;
-  yearSelect.value = year;
-  monthSelect.value = month;
-}
-
-function toggleMonthPopover(shouldOpen) {
-  const popover = document.getElementById('monthPopover');
-  if (!(popover instanceof HTMLElement)) return;
-
-  const open = shouldOpen ?? popover.hidden;
-  if (open) {
-    syncPopoverFromMonthInput();
-    popover.hidden = false;
-    return;
-  }
-
-  popover.hidden = true;
-}
-
-async function applyMonthFromPopover() {
-  const monthInput = document.getElementById('monthInput');
-  const monthSelect = document.getElementById('monthSelect');
-  const yearSelect = document.getElementById('yearSelect');
-  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
-
-  const nextValue = `${yearSelect.value}-${monthSelect.value}`;
-  if (monthInput.value === nextValue) {
-    toggleMonthPopover(false);
-    return;
-  }
-
-  monthInput.value = nextValue;
-  syncMonthChip();
-  toggleMonthPopover(false);
-  await loadStats();
+  return window.NetoMonthPicker?.formatMonthLabel(monthValue) || '-';
 }
 
 function toIsoDate(expenseDate) {
@@ -214,6 +99,84 @@ function buildCategoryTotals(expenses) {
     totals[key] = (totals[key] || 0) + Number(expense.amountArs || 0);
   });
   return totals;
+}
+
+function buildMerchantRanking(expenses) {
+  const merchants = {};
+  expenses.forEach((expense) => {
+    const key = String(expense.merchant || 'Sin comercio').trim() || 'Sin comercio';
+    if (!merchants[key]) {
+      merchants[key] = { count: 0, total: 0 };
+    }
+    merchants[key].count += 1;
+    merchants[key].total += Number(expense.amountArs || 0);
+  });
+
+  return Object.entries(merchants)
+    .map(([merchant, info]) => ({ merchant, count: info.count, total: info.total }))
+    .sort((a, b) => b.count - a.count || b.total - a.total)
+    .slice(0, 6);
+}
+
+function buildUnusualExpenses(expenses) {
+  if (!Array.isArray(expenses) || !expenses.length) return [];
+
+  const values = expenses.map((expense) => Number(expense.amountArs || 0)).filter((value) => value > 0);
+  if (!values.length) return [];
+
+  const average = values.reduce((acc, value) => acc + value, 0) / values.length;
+  const threshold = average * 2;
+
+  return expenses
+    .filter((expense) => Number(expense.amountArs || 0) > threshold)
+    .sort((a, b) => Number(b.amountArs || 0) - Number(a.amountArs || 0))
+    .slice(0, 6);
+}
+
+function renderMerchantRanking(items) {
+  const target = document.getElementById('merchantRanking');
+  if (!target) return;
+
+  if (!Array.isArray(items) || !items.length) {
+    target.innerHTML = '<p class="text-secondary mb-0">No hay datos suficientes para ranking de comercios.</p>';
+    return;
+  }
+
+  target.innerHTML = items
+    .map(
+      (item, index) => `
+      <div class="breakdown-item">
+        <span>${index + 1}. ${item.merchant}</span>
+        <span class="breakdown-actions">
+          <small class="text-secondary">${item.count} compra${item.count === 1 ? '' : 's'}</small>
+          <strong>${formatArs(item.total)}</strong>
+        </span>
+      </div>`,
+    )
+    .join('');
+}
+
+function renderUnusualExpenses(items) {
+  const target = document.getElementById('unusualExpenses');
+  if (!target) return;
+
+  if (!Array.isArray(items) || !items.length) {
+    target.innerHTML = '<p class="text-secondary mb-0">No se detectaron gastos inusuales en el período.</p>';
+    return;
+  }
+
+  target.innerHTML = items
+    .map(
+      (expense) => `
+      <div class="breakdown-item">
+        <span>${formatDateDisplay(expense.expenseDate)} · ${expense.merchant}</span>
+        <span class="breakdown-actions">
+          <small class="text-secondary">${expense.category || 'Otros'}</small>
+          <strong>${formatArs(expense.amountArs)}</strong>
+        </span>
+      </div>`,
+    )
+    .join('');
 }
 
 function computeDetailedStats(expenses) {
@@ -321,6 +284,7 @@ function openCategoryDetailModal(category) {
 function renderCharts(byCategory, expenses) {
   const categoryCtx = document.getElementById('categoryChart');
   const dailyCtx = document.getElementById('dailyChart');
+  const monthlyCtx = document.getElementById('monthlyChart');
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const categoryColor = isDark ? '#60a5fa' : '#1e3a8a';
   const lineColor = isDark ? '#f87171' : '#ef4444';
@@ -333,6 +297,9 @@ function renderCharts(byCategory, expenses) {
   }
   if (window.netoDailyChart) {
     window.netoDailyChart.destroy();
+  }
+  if (window.netoMonthlyChart) {
+    window.netoMonthlyChart.destroy();
   }
 
   window.netoStatsCategoryChart = new Chart(categoryCtx, {
@@ -381,14 +348,43 @@ function renderCharts(byCategory, expenses) {
       },
     },
   });
+
+  const monthly = groupExpensesByMonth(currentAllExpenses);
+  if (monthlyCtx) {
+    window.netoMonthlyChart = new Chart(monthlyCtx, {
+      type: 'bar',
+      data: {
+        labels: monthly.labels,
+        datasets: [
+          {
+            label: 'Gasto mensual ARS',
+            data: monthly.values,
+            borderRadius: 8,
+            backgroundColor: isDark ? '#22c55e' : '#10b981',
+          },
+        ],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+          y: { beginAtZero: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+        },
+      },
+    });
+  }
 }
 
 async function loadStats() {
   const month = document.getElementById('monthInput').value;
   const dashboard = await window.NetoApi.myDashboard(month);
-  const expenses = filterExpensesBySelectedMonth(await window.NetoApi.listExpenses());
+  const allExpenses = await window.NetoApi.listExpenses();
+  const expenses = filterExpensesBySelectedMonth(allExpenses);
+  currentAllExpenses = allExpenses;
   currentStatsExpenses = expenses;
   const byCategoryTotals = buildCategoryTotals(expenses);
+  const merchantRanking = buildMerchantRanking(expenses);
+  const unusualExpenses = buildUnusualExpenses(expenses);
   const detailed = computeDetailedStats(expenses);
 
   document.getElementById('kpiTotal').textContent = formatArs(dashboard.totalMonthArs);
@@ -404,6 +400,8 @@ async function loadStats() {
 
   renderCharts(byCategoryTotals, expenses);
   renderCategoryBreakdown(byCategoryTotals);
+  renderMerchantRanking(merchantRanking);
+  renderUnusualExpenses(unusualExpenses);
 
   if (selectedCategory) {
     renderCategoryExpensesTable();
@@ -412,39 +410,14 @@ async function loadStats() {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.NetoAuth.requireAuth();
-  applyDateMasks();
+  window.NetoExpensesHelpers.applyDateMasks();
 
   const monthInput = document.getElementById('monthInput');
   monthInput.value = new Date().toISOString().slice(0, 7);
-  syncMonthChip();
-
-  const monthChip = document.getElementById('monthChip');
-  monthChip?.addEventListener('click', () => toggleMonthPopover());
-
-  document.getElementById('cancelMonthBtn')?.addEventListener('click', () => {
-    toggleMonthPopover(false);
-  });
-
-  document.getElementById('applyMonthBtn')?.addEventListener('click', async () => {
-    await applyMonthFromPopover();
-  });
-
-  document.addEventListener('click', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
-    const wrap = document.querySelector('.period-picker-wrap');
-    if (!(wrap instanceof HTMLElement)) return;
-    if (wrap.contains(target)) return;
-    toggleMonthPopover(false);
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') return;
-    toggleMonthPopover(false);
-  });
+  monthPicker = window.NetoMonthPicker?.bind({ onApply: loadStats }) || null;
 
   monthInput.addEventListener('change', async () => {
-    syncMonthChip();
+    monthPicker?.sync?.();
     await loadStats();
   });
 
@@ -454,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('categoryBreakdown')?.addEventListener('click', (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    if (!(target instanceof Element)) return;
     const btn = target.closest('.open-category-detail-btn');
     if (!(btn instanceof HTMLButtonElement)) return;
     openCategoryDetailModal(btn.dataset.category || 'Sin categoría');
@@ -462,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('categoryExpensesBody')?.addEventListener('click', (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    if (!(target instanceof Element)) return;
 
     const editBtn = target.closest('.edit-category-expense-btn');
     if (editBtn instanceof HTMLButtonElement) {

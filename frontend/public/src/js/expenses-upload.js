@@ -52,19 +52,6 @@ function renderSelectedTicketName(file) {
 }
 
 async function removePendingExpenseSilently() {
-  if (!pendingExpense?.id) {
-    pendingExpense = null;
-    setPendingModalVisible(false);
-    renderPendingExpenseSummary(null);
-    return;
-  }
-
-  try {
-    await window.NetoApi.deleteExpense(pendingExpense.id);
-  } catch {
-    // Silent cleanup best-effort.
-  }
-
   pendingExpense = null;
   setPendingModalVisible(false);
   renderPendingExpenseSummary(null);
@@ -167,13 +154,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const created = await window.NetoApi.uploadTicket(file);
 
       pendingExpense = {
-        id: created.id || null,
         merchant: created.merchant,
         expenseDate: created.expenseDate,
         originalAmount: created.originalAmount,
         currency: created.currency,
         category: created.category,
         description: created.description,
+        ocrRaw: created.ocrRaw || null,
+        source: created.source || 'ocr',
       };
 
       fillPendingForm(pendingExpense);
@@ -210,14 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currency: form.currency.value,
         category: form.category.value,
         description: form.description.value,
+        source: pendingExpense.source || 'ocr',
+        ocrRaw: pendingExpense.ocrRaw || null,
       };
 
-      let confirmedExpense = null;
-      if (pendingExpense.id) {
-        confirmedExpense = await window.NetoApi.updateExpense(pendingExpense.id, payload);
-      } else {
-        confirmedExpense = await window.NetoApi.createExpense(payload);
-      }
+      const confirmedExpense = await window.NetoApi.createExpense(payload);
 
       helpers.showToast('Gasto por ticket confirmado correctamente.', 'success');
       renderLatestTicket(confirmedExpense || payload);

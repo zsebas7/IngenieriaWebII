@@ -19,11 +19,15 @@ export class RecommendationsService {
 
   async generateForUser(userId: string) {
     const user = await this.usersRepository.findOneByOrFail({ id: userId });
-    const expenses = await this.expensesRepository.find({ where: { user: { id: userId } } });
-
     const month = new Date().toISOString().slice(0, 7);
-    const currentMonth = expenses.filter((expense) => expense.expenseDate.startsWith(month));
-    const summary = currentMonth.map((expense) => ({
+    const summaryExpenses = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .leftJoin('expense.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere("to_char(expense.expenseDate, 'YYYY-MM') = :month", { month })
+      .getMany();
+
+    const summary = summaryExpenses.map((expense) => ({
       merchant: expense.merchant,
       category: expense.category,
       amountArs: Number(expense.amountArs),

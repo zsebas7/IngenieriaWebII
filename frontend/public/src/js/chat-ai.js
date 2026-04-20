@@ -1,11 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  window.NetoAuth.requireAuth();
-  const user = window.NetoAuth.getCurrentUser();
-  const role = String(user?.role || '').toUpperCase();
-  if (!user || role !== 'USER') {
-    window.location.href = 'dashboard.html';
-    return;
-  }
+  const user = window.NetoAuth.requireRole(['USER'], window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html');
+  if (!user) return;
 
   const sessionsContainer = document.getElementById('aiChatSessions');
   const messagesContainer = document.getElementById('aiChatMessages');
@@ -60,13 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     providerBadge.textContent = 'Proveedor: --';
   }
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;');
-  }
+  const escapeHtml = window.NetoDom.escapeHtml;
 
   function notify(message, type = 'error') {
     if (window.NetoToast?.show) {

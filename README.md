@@ -1,78 +1,123 @@
 # NETO - Plataforma Inteligente de Gestion de Gastos Personales
 
-Proyecto de Ingenieria Web II (2026).
+Proyecto academico de Ingenieria Web II (2026).
 
-## Stack usado
-- Frontend: HTML, CSS, JavaScript (vanilla) + Bootstrap 5 + Chart.js
-- Backend: NestJS + TypeORM + PostgreSQL
+NETO es una plataforma web cliente-servidor para registrar, analizar y mejorar habitos de gasto personal, con soporte de OCR para tickets y funcionalidades de analisis para asesores.
+
+## Descripcion del sistema
+
+El sistema trabaja con tres roles:
+
+- `USER`: registra gastos manualmente o desde ticket, consulta historial, visualiza estadisticas, administra presupuestos/metas y recibe recomendaciones.
+- `ADVISOR`: visualiza usuarios, analiza patrones de consumo y crea recomendaciones financieras.
+- `ADMIN`: administra usuarios, roles y estado de cuentas.
+
+## Arquitectura
+
+Arquitectura web cliente-servidor:
+
+- Frontend: HTML, CSS y JavaScript vanilla (sin frameworks SPA)
+- Backend: NestJS con API REST
+- Persistencia: PostgreSQL con TypeORM
+
+Patrones y decisiones aplicadas:
+
+- `Controller-Service-Repository` en backend
+- modularizacion por dominio en NestJS
+- DTOs con validacion declarativa
+- RBAC con guards y decorators
+- modulos compartidos en frontend para reducir duplicacion (`nav`, `month-picker`, `shared/dom`, `shared/icons`, `shared/format`)
+
+## Tecnologias utilizadas
+
+- Frontend: HTML, CSS, JavaScript, Bootstrap 5, Chart.js
+- Backend: NestJS, TypeORM, class-validator, JWT
+- Base de datos: PostgreSQL
 - OCR: OCR.Space API
-- IA chat y recomendaciones: Groq (llama-3.3-70b-versatile) con fallback OpenAI
-- Deploy: Backend en Railway, Frontend en Netlify
+- IA para recomendaciones/chat: Groq con fallback OpenAI
 
-## Estructura
-- `backend/` API REST, autenticacion, OCR, recomendaciones, dashboard, exportes
-- `frontend/` sitio estatico con landing, auth, dashboard y paneles por rol
+## Estructura del proyecto
 
-## Frontend modular (usuario)
-- `dashboard.html`: resumen general y recomendaciones
-- `expenses.html`: carga manual/OCR, presupuestos y metas
-- `stats.html`: analitica detallada con graficos
-- `profile.html`: datos y preferencias del usuario
+- `backend/`: API REST, autenticacion, roles, gastos, OCR, dashboard, recomendaciones, chat y exportes
+- `frontend/`: aplicacion estatica por roles
+  - `frontend/public/src/html/public/`
+  - `frontend/public/src/html/user/`
+  - `frontend/public/src/html/advisor/`
+  - `frontend/public/src/html/admin/`
 
-## Roles
-- USER: carga gastos manual/OCR, dashboard, presupuesto, metas, recomendaciones
-- ADVISOR: visualiza usuarios y analiza informacion
-- ADMIN: gestiona usuarios, roles y activacion
+## Funcionalidades implementadas
 
-## Variables de entorno backend
-Copiar `backend/.env.example` a `backend/.env` y completar:
+### Gestion de usuarios
 
-- `PORT`
-- `NODE_ENV`
-- `CORS_ORIGIN` (recomendado en Railway)
-- `FRONTEND_URL`
-- `DATABASE_URL` (Railway) o `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME`
-- `DB_SYNC` (`true` por defecto; usar `false` para desactivar sincronizacion automatica)
-- `JWT_ACCESS_SECRET`
-- `JWT_REFRESH_SECRET`
-- `GOOGLE_CLIENT_ID`
-- `OCR_PROVIDER` (`ocrspace`)
-- `OCR_SPACE_API_KEY`
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL`
-- `GROQ_API_KEY`
-- `GROQ_MODEL`
-- `FORMSPREE_ENDPOINT`
+- registro y login
+- refresh token
+- perfil de usuario
+- recuperacion de contraseña
+- login con Google
+- administracion de usuarios (rol/activo)
 
-## Instalacion local
-### Backend
-```bash
-cd backend
-npm install
-npm run start:dev
-```
+### Gestion de gastos
 
-### Frontend
-Sirve `frontend/public/src` con cualquier servidor estatico.
-Ejemplo:
-```bash
-cd frontend/public/src
-python3 -m http.server 5500
-```
-Abrir: `http://localhost:5500/html/index.html`
+- alta manual de gastos
+- edicion y eliminacion
+- listado y organizacion
+- carga por ticket con OCR y precompletado
 
-## Seed de datos demo
-```bash
-cd backend
-npm run seed
-```
-Usuarios demo:
-- admin@neto.app / Admin1234
-- asesor@neto.app / Asesor1234
-- usuario@neto.app / Usuario1234
+### Analitica y visualizacion
 
-## Endpoints principales
+- dashboard mensual
+- distribucion por categoria
+- evolucion temporal
+- gasto promedio y top categoria
+- ranking de comercios
+- deteccion de gastos inusuales
+
+### Planificacion financiera
+
+- presupuestos por categoria y mes
+- metas de ahorro con seguimiento de progreso
+
+### Recomendaciones
+
+- recomendaciones generadas por sistema
+- recomendaciones creadas por asesor
+- historial de recomendaciones por usuario
+
+### Chat
+
+- chat usuario <-> asesor en tiempo real
+- chat de asistencia financiera con IA
+
+### Exportacion
+
+- exportacion de gastos a CSV, XLSX y PDF
+
+## Modelo de datos (resumen)
+
+Entidades principales:
+
+- `User`
+- `Expense`
+- `Budget`
+- `Goal`
+- `Recommendation`
+- `ChatConversation`
+- `ChatMessage`
+- `AiChatSession`
+- `AiChatMessage`
+
+Relaciones relevantes:
+
+- usuario 1..N gastos
+- usuario 1..N presupuestos
+- usuario 1..N metas
+- usuario 1..N recomendaciones
+- conversaciones y mensajes vinculados a usuario/asesor
+
+## Endpoints del backend
+
 ### Auth
+
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/google`
@@ -80,62 +125,64 @@ Usuarios demo:
 - `POST /auth/forgot-password`
 
 ### Usuarios
+
 - `GET /users/me`
 - `PATCH /users/me`
 - `GET /users` (advisor/admin)
 - `PATCH /users/:id/active` (admin)
 - `PATCH /users/:id/role` (admin)
 
-### Gastos y OCR
+### Gastos y tickets
+
 - `GET /expenses`
 - `POST /expenses`
 - `PATCH /expenses/:id`
 - `DELETE /expenses/:id`
 - `POST /tickets/upload`
 
-### Analitica y extras
+### Dashboard y planificacion
+
 - `GET /dashboard/me?month=YYYY-MM`
 - `GET /dashboard/global` (admin)
-- `GET/POST /budgets`
-- `GET/POST /goals`
+- `GET /budgets`
+- `POST /budgets`
+- `PATCH /budgets/:id`
+- `DELETE /budgets/:id`
+- `GET /goals`
+- `POST /goals`
+- `PATCH /goals/:id`
+- `DELETE /goals/:id`
+
+### Recomendaciones y chat
+
 - `POST /recommendations/generate`
 - `GET /recommendations`
+- `POST /recommendations/advisor`
 - `GET /ai-chat/sessions`
 - `POST /ai-chat/sessions`
 - `GET /ai-chat/sessions/:id/messages`
 - `POST /ai-chat/sessions/:id/messages`
+
+### Exportes y salud
+
 - `GET /exports/csv`
 - `GET /exports/pdf`
 - `GET /exports/xlsx`
 - `GET /health`
 
-## Deploy backend en Railway
-Ver guia completa: `backend/RAILWAY_DEPLOYMENT.md`
+## Uso de IA en el proyecto
 
-### Troubleshooting Railway (Railpack)
-Si aparece `Error creating build plan with Railpack`:
-- Configura `Root Directory` del servicio en `backend`.
-- O despliega desde la raiz usando `railway.json` (builder Docker + `backend/Dockerfile`).
-- En `Service Settings` verifica que el builder sea Dockerfile, no Railpack.
-- Si Railway igualmente usa Railpack en la raiz: el repo ya tiene `package.json` de monorepo para que detecte Node y use scripts `build/start` apuntando a `backend`.
-- Tambien se incluyen scripts shell en raiz para deteccion explicita de Railpack: `build.sh` y `start.sh`.
+La IA se utiliza en dos flujos:
 
-## Deploy frontend en Netlify
-Ver guia completa: `frontend/NETLIFY_DEPLOYMENT.md`
+1. OCR de tickets:
+   - se sube una imagen
+   - se extraen monto, comercio y fecha
+   - se precompleta el formulario para confirmacion del usuario
 
-Configuracion recomendada para este monorepo:
-- Netlify usa `netlify.toml` en la raiz del repo.
-- `base = "frontend"`
-- `publish = "public/src"`
-- Build command sin build real (sitio estatico).
+2. Asistencia y recomendaciones:
+   - sugerencias financieras en base a comportamiento de gasto
+   - chat de asistencia financiera con proveedor principal y fallback
 
-## Documentacion detallada
-- Implementacion completa paso a paso: `docs/IMPLEMENTACION_PASO_A_PASO.md`
+## Estado frente a la consigna
 
-## Mantenimiento del README
-Este README se considera documento vivo del proyecto. Cada cambio funcional relevante debe actualizar:
-- alcance y stack
-- endpoints nuevos o modificados
-- variables de entorno
-- cambios de despliegue
-- enlaces a nueva documentacion tecnica
+El proyecto implementa la arquitectura requerida, stack obligatorio y funcionalidades troncales (auth, roles, CRUD de gastos, OCR, visualizacion y recomendaciones), incluyendo panel por rol y persistencia de datos.

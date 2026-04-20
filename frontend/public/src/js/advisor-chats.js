@@ -1,11 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  window.NetoAuth.requireAuth();
-  const user = window.NetoAuth.getCurrentUser();
-  const role = String(user?.role || '').toUpperCase();
-  if (!user || role !== 'ADVISOR') {
-    window.location.href = 'advisor.html';
-    return;
-  }
+  const user = window.NetoAuth.requireRole(['ADVISOR'], window.NetoRoutes?.advisor?.dashboard || '/html/advisor/advisor.html');
+  if (!user) return;
 
   const usersList = document.getElementById('advisorUsersList');
   const conversationsList = document.getElementById('advisorConversationsList');
@@ -23,13 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let socketConnected = false;
   let counterpartOnline = false;
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;');
-  }
+  const escapeHtml = window.NetoDom.escapeHtml;
 
   function notify(message, type = 'error') {
     if (window.NetoToast?.show) {

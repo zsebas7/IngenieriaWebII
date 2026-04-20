@@ -3,5 +3,5 @@
 
 [[redirects]]
   from = "/"
-  to = "/html/index.html"
+  to = "/html/public/index.html"
   status = 301

@@ -16,7 +16,7 @@ export class TicketsController {
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
-  upload(@UploadedFile() file: Express.Multer.File, @Req() req: { user: { id: string } }) {
-    return this.ticketsService.uploadAndProcess(file, req.user.id);
+  upload(@UploadedFile() file: Express.Multer.File, @Req() _req: { user: { id: string } }) {
+    return this.ticketsService.uploadAndProcess(file);
   }
 }

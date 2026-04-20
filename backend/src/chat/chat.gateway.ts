@@ -16,20 +16,39 @@ import { WsSendMessageDto } from './dto/ws-send-message.dto';
 
 type SocketUser = { id: string; role: string };
 
-@WebSocketGateway({ cors: { origin: '*' }, namespace: '/chat' })
+const parseAllowedOrigins = (rawValue: string): string[] =>
+  rawValue
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+@WebSocketGateway({ namespace: '/chat' })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
   private readonly onlineUsers = new Map<string, number>();
+  private readonly allowedOrigins: string[];
+  private readonly allowAllOrigins: boolean;
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly chatService: ChatService,
-  ) {}
+  ) {
+    const rawCorsOrigins =
+      this.configService.get<string>('CORS_ORIGIN') ?? this.configService.get<string>('FRONTEND_URL', '');
+    this.allowedOrigins = parseAllowedOrigins(rawCorsOrigins);
+    this.allowAllOrigins = this.allowedOrigins.includes('*');
+  }
 
   async handleConnection(client: Socket) {
+    const origin = String(client.handshake.headers.origin || '').trim();
+    if (!this.isOriginAllowed(origin)) {
+      client.disconnect();
+      return;
+    }
+
     const user = await this.resolveUserFromSocket(client);
     if (!user) {
       client.disconnect();
@@ -136,7 +155,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       const payload = await this.jwtService.verifyAsync<{ sub: string; role: string }>(token, {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET', 'dev-secret'),
+        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
       });
 
       if (!payload?.sub || !payload?.role) {
@@ -190,5 +209,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         online,
       });
     }
+  }
+
+  private isOriginAllowed(origin: string) {
+    if (!origin) {
+      return true;
+    }
+
+    if (this.allowAllOrigins || this.allowedOrigins.length === 0) {
+      return true;
+    }
+
+    return this.allowedOrigins.includes(origin);
   }
 }

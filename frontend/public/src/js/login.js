@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         enableLocalPreviewFallback();
       }
-      window.location.href = 'dashboard.html';
+      window.location.href = window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html';
     });
   }
 
@@ -58,11 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.setItem('neto_user', JSON.stringify(payload.user));
       }
       if (payload.user.role === 'ADMIN') {
-        window.location.href = 'admin.html';
+        window.location.href = window.NetoRoutes?.admin?.dashboard || '/html/admin/admin.html';
       } else if (payload.user.role === 'ADVISOR') {
-        window.location.href = 'advisor.html';
+        window.location.href = window.NetoRoutes?.advisor?.dashboard || '/html/advisor/advisor.html';
       } else {
-        window.location.href = 'dashboard.html';
+        window.location.href = window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html';
       }
     } catch (error) {
       window.NetoUI?.showMessage(form, error.message || 'No se pudo iniciar sesión', 'error');

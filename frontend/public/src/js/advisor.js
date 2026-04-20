@@ -37,14 +37,7 @@ function isDetailPage() {
   return getAdvisorPage() === 'detail';
 }
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+const escapeHtml = window.NetoDom.escapeHtml;
 
 function getSpendingProfileMeta(profile) {
   if (profile === 'SAVER') {
@@ -63,12 +56,10 @@ function spendingProfileChipMarkup(profile) {
   return `<span class="status-chip ${meta.chipClass}">${escapeHtml(meta.label)}</span>`;
 }
 
-function formatArs(value) {
-  return `ARS ${Number(value || 0).toFixed(2)}`;
-}
+const formatArs = window.NetoFormat.ars;
 
 function formatOriginal(value, currency = 'ARS') {
-  return `${currency} ${Number(value || 0).toFixed(2)}`;
+  return window.NetoFormat.money(currency, value);
 }
 
 function parseDateToIso(value) {
@@ -117,6 +108,20 @@ function groupByDay(expenses) {
     labels: labels.map((label) => formatDateDisplay(label)),
     values: labels.map((label) => map[label]),
   };
+}
+
+function buildUnusualExpensesForAdvisor(expenses) {
+  if (!Array.isArray(expenses) || !expenses.length) return [];
+  const values = expenses.map((item) => Number(item.amountArs || 0)).filter((value) => value > 0);
+  if (!values.length) return [];
+
+  const average = values.reduce((acc, value) => acc + value, 0) / values.length;
+  const threshold = average * 2;
+
+  return expenses
+    .filter((item) => Number(item.amountArs || 0) > threshold)
+    .sort((a, b) => Number(b.amountArs || 0) - Number(a.amountArs || 0))
+    .slice(0, 6);
 }
 
 function getChartPalette() {
@@ -312,7 +317,7 @@ function renderUsersTable() {
         <td><span class="status-chip ${user.isActive ? 'good' : 'warn'}">${user.isActive ? 'Activo' : 'Inactivo'}</span></td>
         <td>${metrics.count}</td>
         <td>${formatArs(metrics.total)}</td>
-        <td class="text-end"><a class="btn btn-sm btn-neto advisor-view-user" href="advisor-detail.html?userId=${encodeURIComponent(user.id)}">Ver perfil</a></td>
+        <td class="text-end"><a class="btn btn-sm btn-neto advisor-view-user" href="${window.NetoRoutes?.advisor?.detail || '/html/advisor/advisor-detail.html'}?userId=${encodeURIComponent(user.id)}">Ver perfil</a></td>
       </tr>`;
     })
     .join('');
@@ -444,6 +449,32 @@ function renderDetailExpensesTable(expenses) {
     .join('');
 }
 
+function renderDetailAlerts(expenses) {
+  if (!isDetailPage()) return;
+
+  const target = document.getElementById('advisorDetailAlerts');
+  if (!target) return;
+
+  const unusual = buildUnusualExpensesForAdvisor(expenses);
+  if (!unusual.length) {
+    target.innerHTML = '<p class="text-secondary mb-0">No se detectaron gastos inusuales para este usuario.</p>';
+    return;
+  }
+
+  target.innerHTML = unusual
+    .map(
+      (item) => `
+      <div class="breakdown-item">
+        <span>${formatDateDisplay(item.expenseDate)} · ${escapeHtml(item.merchant || '-')}</span>
+        <span class="breakdown-actions">
+          <small class="text-secondary">${escapeHtml(item.category || 'Otros')}</small>
+          <strong>${formatArs(item.amountArs)}</strong>
+        </span>
+      </div>`,
+    )
+    .join('');
+}
+
 function renderRecommendations() {
   if (!isDetailPage()) return;
 
@@ -551,6 +582,7 @@ function renderDetailPage() {
 
   renderDetailCharts(expenses);
   renderDetailExpensesTable(expenses);
+  renderDetailAlerts(expenses);
   renderRecommendations();
 }
 
@@ -719,13 +751,11 @@ function renderCurrentPage() {
 }
 
 async function initializeAdvisorScreen() {
-  window.NetoAuth.requireAuth();
-
-  const currentUser = window.NetoAuth.getCurrentUser();
-  if (!currentUser || (currentUser.role !== 'ADVISOR' && currentUser.role !== 'ADMIN')) {
-    window.location.href = 'dashboard.html';
-    return;
-  }
+  const currentUser = window.NetoAuth.requireRole(
+    ['ADVISOR', 'ADMIN'],
+    window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html',
+  );
+  if (!currentUser) return;
 
   advisorState.currentUser = currentUser;
   advisorState.recommendations = {};

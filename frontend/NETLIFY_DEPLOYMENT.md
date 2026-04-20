@@ -18,9 +18,11 @@ Define endpoint:
 - `localStorage.setItem('neto_formspree', 'https://formspree.io/f/xxxx')`
 
 ## 4. URL final
-- Landing: `/html/index.html`
-- Login: `/html/login.html`
-- Dashboard: `/html/dashboard.html`
+- Landing: `/html/public/index.html`
+- Login: `/html/public/login.html`
+- Dashboard usuario: `/html/user/dashboard.html`
+- Dashboard asesor: `/html/advisor/advisor.html`
+- Dashboard admin: `/html/admin/admin.html`
 
 ## 5. Checklist
 - API URL apuntando a Railway

@@ -16,13 +16,6 @@ export class UsersService {
   ) {}
 
   async findAll() {
-    const internalUsers = await this.usersRepository.find({
-      select: ['id', 'role'],
-    });
-
-    const targetUsers = internalUsers.filter((user) => user.role === Role.USER);
-    await Promise.all(targetUsers.map((user) => this.userSegmentationService.refreshForUser(user.id)));
-
     return this.usersRepository.find({
       select: [
         'id',

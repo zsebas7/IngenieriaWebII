@@ -1,81 +1,4 @@
-const MONTH_NAMES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-function formatMonthLabel(monthValue) {
-  const match = String(monthValue || '').match(/^(\d{4})-(\d{2})$/);
-  if (!match) return '-';
-  const [, year, month] = match;
-  const monthIndex = Number(month) - 1;
-  if (monthIndex < 0 || monthIndex > 11) return '-';
-  return `${MONTH_NAMES_ES[monthIndex]} ${year}`;
-}
-
-function syncMonthChip() {
-  const monthInput = document.getElementById('monthInput');
-  const monthChip = document.getElementById('monthChip');
-  if (!monthInput || !monthChip) return;
-  const label = formatMonthLabel(monthInput.value);
-  monthChip.textContent = label;
-  monthChip.title = `Período seleccionado: ${label}`;
-}
-
-function ensureYearOptions(yearSelect) {
-  if (!(yearSelect instanceof HTMLSelectElement)) return;
-  if (yearSelect.options.length) return;
-
-  const currentYear = new Date().getFullYear();
-  for (let year = currentYear - 10; year <= currentYear + 5; year += 1) {
-    const option = document.createElement('option');
-    option.value = String(year);
-    option.textContent = String(year);
-    yearSelect.appendChild(option);
-  }
-}
-
-function syncPopoverFromMonthInput() {
-  const monthInput = document.getElementById('monthInput');
-  const monthSelect = document.getElementById('monthSelect');
-  const yearSelect = document.getElementById('yearSelect');
-  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
-
-  ensureYearOptions(yearSelect);
-  const match = String(monthInput.value || '').match(/^(\d{4})-(\d{2})$/);
-  if (!match) return;
-  const [, year, month] = match;
-  yearSelect.value = year;
-  monthSelect.value = month;
-}
-
-function toggleMonthPopover(shouldOpen) {
-  const popover = document.getElementById('monthPopover');
-  if (!(popover instanceof HTMLElement)) return;
-
-  const open = shouldOpen ?? popover.hidden;
-  if (open) {
-    syncPopoverFromMonthInput();
-    popover.hidden = false;
-    return;
-  }
-
-  popover.hidden = true;
-}
-
-async function applyMonthFromPopover() {
-  const monthInput = document.getElementById('monthInput');
-  const monthSelect = document.getElementById('monthSelect');
-  const yearSelect = document.getElementById('yearSelect');
-  if (!(monthInput instanceof HTMLInputElement) || !(monthSelect instanceof HTMLSelectElement) || !(yearSelect instanceof HTMLSelectElement)) return;
-
-  const nextValue = `${yearSelect.value}-${monthSelect.value}`;
-  if (monthInput.value === nextValue) {
-    toggleMonthPopover(false);
-    return;
-  }
-
-  monthInput.value = nextValue;
-  syncMonthChip();
-  toggleMonthPopover(false);
-  await loadDashboard();
-}
+let monthPicker = null;
 
 async function loadDashboard() {
   window.NetoAuth.requireAuth();
@@ -212,7 +135,7 @@ function renderGoalProgress(items) {
           : daysLeft === 0
             ? 'Vence hoy'
             : `Faltan ${daysLeft} dia${daysLeft === 1 ? '' : 's'}`;
-      const goalLink = `goals.html?goal=${encodeURIComponent(goal.id || '')}`;
+      const goalLink = `${window.NetoRoutes?.user?.goals || '/html/user/goals.html'}?goal=${encodeURIComponent(goal.id || '')}`;
 
       return `
         <a class="budget-progress-item dashboard-drilldown" href="${goalLink}" title="Ver detalle de meta">
@@ -312,7 +235,7 @@ function renderBudgetProgress(items) {
         statusLabel = `Margen restante critico: ARS ${remainingAmount.toFixed(2)}`;
       }
 
-      const planningLink = `planning.html?category=${encodeURIComponent(item.category || '')}`;
+      const planningLink = `${window.NetoRoutes?.user?.planning || '/html/user/planning.html'}?category=${encodeURIComponent(item.category || '')}`;
 
         return `
         <a class="budget-progress-item dashboard-drilldown" href="${planningLink}" title="Ver detalle de presupuesto">
@@ -331,35 +254,10 @@ function renderBudgetProgress(items) {
 document.addEventListener('DOMContentLoaded', () => {
   const monthInput = document.getElementById('monthInput');
   monthInput.value = new Date().toISOString().slice(0, 7);
-  syncMonthChip();
-
-  const monthChip = document.getElementById('monthChip');
-  monthChip?.addEventListener('click', () => toggleMonthPopover());
-
-  document.getElementById('cancelMonthBtn')?.addEventListener('click', () => {
-    toggleMonthPopover(false);
-  });
-
-  document.getElementById('applyMonthBtn')?.addEventListener('click', async () => {
-    await applyMonthFromPopover();
-  });
-
-  document.addEventListener('click', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
-    const wrap = document.querySelector('.period-picker-wrap');
-    if (!(wrap instanceof HTMLElement)) return;
-    if (wrap.contains(target)) return;
-    toggleMonthPopover(false);
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') return;
-    toggleMonthPopover(false);
-  });
+  monthPicker = window.NetoMonthPicker?.bind({ onApply: loadDashboard }) || null;
 
   monthInput.addEventListener('change', async () => {
-    syncMonthChip();
+    monthPicker?.sync?.();
     await loadDashboard();
   });
 

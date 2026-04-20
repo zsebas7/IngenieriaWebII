@@ -143,8 +143,22 @@ function requireAuth() {
 
   if (!user || !accessToken || isAccessTokenExpired(accessToken)) {
     clearAuthState();
-    window.location.href = 'index.html';
+    window.location.href = window.NetoRoutes?.public?.index || '/html/public/index.html';
   }
+}
+
+function requireRole(roles, redirectPath) {
+  requireAuth();
+  const user = getCurrentUser();
+  const acceptedRoles = Array.isArray(roles) ? roles.map((role) => String(role).toUpperCase()) : [];
+  const userRole = String(user?.role || '').toUpperCase();
+
+  if (!user || !acceptedRoles.includes(userRole)) {
+    window.location.href = redirectPath || window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html';
+    return null;
+  }
+
+  return user;
 }
 
 window.NetoAuth = {
@@ -155,11 +169,12 @@ window.NetoAuth = {
   setCurrentUser,
   clearAuthState,
   requireAuth,
+  requireRole,
   enableLocalPreview,
   canUseLocalPreview: isLocalPreviewHost,
   logout() {
     clearAuthState();
-    window.location.href = 'index.html';
+    window.location.href = window.NetoRoutes?.public?.index || '/html/public/index.html';
   },
 };
 })();

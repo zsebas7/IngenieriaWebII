@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  window.NetoAuth.requireAuth();
-  const user = window.NetoAuth.getCurrentUser();
-  if (user.role !== 'ADMIN') {
-    window.location.href = 'dashboard.html';
-    return;
-  }
+  const user = window.NetoAuth.requireRole(['ADMIN'], window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html');
+  if (!user) return;
 
   await renderUsers();
 });
@@ -15,14 +11,7 @@ function getSpendingProfileLabel(profile) {
   return { label: 'Equilibrado', chipClass: 'warn' };
 }
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+const escapeHtml = window.NetoDom.escapeHtml;
 
 async function renderUsers() {
   const users = await window.NetoApi.listUsers();

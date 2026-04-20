@@ -121,8 +121,9 @@ async function apiRequest(path, options = {}) {
       response = await rawApiRequest(path, options);
     } else {
       clearAuthState();
+      const loginPath = window.NetoRoutes?.public?.index || '/html/public/index.html';
       if (!window.location.pathname.endsWith('/index.html')) {
-        window.location.href = 'index.html';
+        window.location.href = loginPath;
       }
       throw new Error('Sesión vencida. Inicia sesión nuevamente.');
     }

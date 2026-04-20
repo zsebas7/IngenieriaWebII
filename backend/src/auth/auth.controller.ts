@@ -34,7 +34,7 @@ export class AuthController {
   async refresh(@Body() dto: RefreshDto) {
     try {
       const payload = await this.jwtService.verifyAsync<{ sub: string }>(dto.refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'dev-refresh'),
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       });
 
       if (!payload?.sub) {

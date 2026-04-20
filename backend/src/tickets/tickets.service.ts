@@ -1,12 +1,9 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
-import { ExpensesService } from '../expenses/expenses.service';
 
 @Injectable()
 export class TicketsService {
-  constructor(private readonly expensesService: ExpensesService) {}
-
   private static readonly TRANSIENT_RETRY_DELAYS_MS = [1500, 3000];
 
   private static readonly OCR_ATTEMPTS: ReadonlyArray<{ language: string; isTable: boolean; engine: number }> = [
@@ -16,7 +13,7 @@ export class TicketsService {
     { language: 'spa', isTable: false, engine: 1 },
   ];
 
-  async uploadAndProcess(file: Express.Multer.File, userId: string) {
+  async uploadAndProcess(file: Express.Multer.File) {
     try {
       if (!file) {
         throw new BadRequestException('Debe adjuntar un archivo');
@@ -27,19 +24,16 @@ export class TicketsService {
         throw new BadRequestException('No se pudo extraer información confiable del ticket');
       }
 
-      return this.expensesService.create(
-        userId,
-        {
-          merchant: parsed.merchant,
-          expenseDate: parsed.date,
-          originalAmount: parsed.amount,
-          currency: parsed.currency,
-          category: parsed.category,
-          description: 'Gasto detectado automáticamente por OCR',
-        },
-        'ocr',
-        parsed.raw,
-      );
+      return {
+        merchant: parsed.merchant,
+        expenseDate: parsed.date,
+        originalAmount: parsed.amount,
+        currency: parsed.currency,
+        category: parsed.category,
+        description: 'Gasto detectado automáticamente por OCR',
+        ocrRaw: parsed.raw,
+        source: 'ocr',
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

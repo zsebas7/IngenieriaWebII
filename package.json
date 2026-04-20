@@ -7,12 +7,15 @@
   ],
   "scripts": {
     "build": "npm --workspace backend run build",
-    "start": "npm --workspace backend run start"
+    "start": "npm --workspace backend run start",
+    "start:dev": "npm --workspace backend run start:dev"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@nestjs/platform-express": "^10.4.22"
+    "@nestjs/platform-express": "^10.4.22",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.4"
   }
 }

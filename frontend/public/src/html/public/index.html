@@ -7,12 +7,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body class="app-shell">
     <nav class="navbar navbar-expand-lg marketing-nav sticky-top">
       <div class="container py-2">
-        <a class="brand-lockup" href="index.html">
+        <a class="brand-lockup" href="../public/index.html">
           <span class="logo-mark" aria-hidden="true"></span>
           <span>NETO</span>
         </a>
@@ -32,8 +32,8 @@
               <option value="en">EN</option>
             </select>
             <button class="btn btn-ghost" onclick="toggleTheme()" aria-label="Cambiar tema"></button>
-            <a class="btn btn-outline-secondary" href="login.html">Ingresar</a>
-            <a class="btn btn-neto" href="register.html" data-i18n="ctaStart">Crear cuenta</a>
+            <a class="btn btn-outline-secondary" href="../public/login.html">Ingresar</a>
+            <a class="btn btn-neto" href="../public/register.html" data-i18n="ctaStart">Crear cuenta</a>
           </div>
         </div>
       </div>
@@ -50,8 +50,8 @@
                 Mira exactamente en qué se va tu plata y toma decisiones simples para llegar mejor a fin de mes.
               </p>
               <div class="d-flex flex-wrap gap-2 mb-4">
-                <a href="register.html" class="btn btn-neto btn-lg">Empezar gratis</a>
-                <a href="demo.html" class="btn btn-outline-secondary btn-lg" data-i18n="ctaDemo">Probar demo</a>
+                <a href="../public/register.html" class="btn btn-neto btn-lg">Empezar gratis</a>
+                <a href="../public/demo.html" class="btn btn-outline-secondary btn-lg" data-i18n="ctaDemo">Probar demo</a>
               </div>
             </div>
             <div class="d-flex flex-wrap gap-2">
@@ -101,7 +101,7 @@
       <section id="impact" class="mb-5">
         <div class="section-title">
           <h2 class="h3 mb-0">Resultados que llaman la atención</h2>
-          <a href="register.html" class="text-link">Crear cuenta</a>
+          <a href="../public/register.html" class="text-link">Crear cuenta</a>
         </div>
         <div class="impact-grid">
           <article class="impact-card pulse-highlight">
@@ -159,7 +159,7 @@
               <p class="eyebrow mb-2">Free</p>
               <div class="plan-price">$0 <small>/mes</small></div>
               <p class="text-secondary">Hasta 50 movimientos por mes, dashboard base y una cuenta personal.</p>
-              <a href="register.html" class="btn btn-outline-secondary">Comenzar</a>
+              <a href="../public/register.html" class="btn btn-outline-secondary">Comenzar</a>
             </article>
           </div>
           <div class="col-md-4">
@@ -167,7 +167,7 @@
               <p class="eyebrow mb-2">Pro</p>
               <div class="plan-price">$9.99 <small>/mes</small></div>
               <p class="text-secondary">Más reportes, recomendaciones y exportación avanzada para avanzar más rápido.</p>
-              <a href="register.html" class="btn btn-neto">Elegir Pro</a>
+              <a href="../public/register.html" class="btn btn-neto">Elegir Pro</a>
             </article>
           </div>
           <div class="col-md-4">
@@ -175,7 +175,7 @@
               <p class="eyebrow mb-2">Advisor</p>
               <div class="plan-price">$24.99 <small>/mes</small></div>
               <p class="text-secondary">Gestión multiusuario para asesores con panel consolidado y permisos por rol.</p>
-              <a href="register.html" class="btn btn-outline-secondary">Solicitar acceso</a>
+              <a href="../public/register.html" class="btn btn-outline-secondary">Solicitar acceso</a>
             </article>
           </div>
         </div>
@@ -194,7 +194,7 @@
               <div class="col-12"><textarea class="form-control form-control-modern" name="message" rows="4" placeholder="Cuéntanos tu objetivo financiero" required></textarea></div>
               <div class="col-12 d-flex gap-2">
                 <button class="btn btn-neto" type="submit">Enviar mensaje</button>
-                <a href="demo.html" class="btn btn-outline-secondary">Ver demo</a>
+                <a href="../public/demo.html" class="btn btn-outline-secondary">Ver demo</a>
               </div>
             </form>
           </div>
@@ -209,16 +209,19 @@
           <strong>NETO</strong>
         </div>
         <div class="d-flex gap-3">
-          <a class="text-link" href="terms.html">Términos</a>
-          <a class="text-link" href="privacy.html">Privacidad</a>
+          <a class="text-link" href="../public/terms.html">Términos</a>
+          <a class="text-link" href="../public/privacy.html">Privacidad</a>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/config.js"></script>
-    <script src="../js/theme.js"></script>
-    <script src="../js/i18n.js"></script>
-    <script src="../js/landing.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/shared/dom.js"></script>
+    <script src="/js/shared/icons.js"></script>
+    <script src="/js/shared/format.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/landing.js"></script>
   </body>
 </html>

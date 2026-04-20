@@ -12,8 +12,12 @@ export class DashboardsService {
   ) {}
 
   async getUserDashboard(userId: string, month: string) {
-    const expenses = await this.expensesRepository.find({ where: { user: { id: userId } } });
-    const monthExpenses = expenses.filter((expense) => expense.expenseDate.startsWith(month));
+    const monthExpenses = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .leftJoin('expense.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere("to_char(expense.expenseDate, 'YYYY-MM') = :month", { month })
+      .getMany();
 
     const total = monthExpenses.reduce((acc, current) => acc + Number(current.amountArs), 0);
     const average = monthExpenses.length ? total / monthExpenses.length : 0;
@@ -29,8 +33,14 @@ export class DashboardsService {
     previousMonth.setMonth(previousMonth.getMonth() - 1);
     const previousMonthKey = `${previousMonth.getFullYear()}-${String(previousMonth.getMonth() + 1).padStart(2, '0')}`;
 
-    const previousTotal = expenses
-      .filter((expense) => expense.expenseDate.startsWith(previousMonthKey))
+    const previousMonthExpenses = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .leftJoin('expense.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere("to_char(expense.expenseDate, 'YYYY-MM') = :month", { month: previousMonthKey })
+      .getMany();
+
+    const previousTotal = previousMonthExpenses
       .reduce((acc, current) => acc + Number(current.amountArs), 0);
 
     const variationVsLastMonth = previousTotal === 0 ? 0 : ((total - previousTotal) / previousTotal) * 100;

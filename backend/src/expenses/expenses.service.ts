@@ -20,14 +20,16 @@ export class ExpensesService {
   async create(userId: string, dto: CreateExpenseDto, source = 'manual', ocrRaw?: Record<string, unknown>) {
     const user = await this.usersRepository.findOneByOrFail({ id: userId });
     const amountArs = await this.exchangeRateService.convertToArs(dto.originalAmount, dto.currency);
+    const effectiveSource = dto.source?.trim() || source;
+    const effectiveOcrRaw = dto.ocrRaw ?? ocrRaw ?? null;
 
     const expense = this.expensesRepository.create({
       ...dto,
       amountArs,
-      source,
+      source: effectiveSource,
       user,
       description: dto.description ?? null,
-      ocrRaw: ocrRaw ?? null,
+      ocrRaw: effectiveOcrRaw,
       ticketImageUrl: null,
     });
 

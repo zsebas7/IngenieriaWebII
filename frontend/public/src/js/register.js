@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         role: form.role.value,
       });
       window.NetoAuth.saveAuth(payload);
-      window.location.href = 'dashboard.html';
+      window.location.href = window.NetoRoutes?.user?.dashboard || '/html/user/dashboard.html';
     } catch (error) {
       window.NetoUI?.showMessage(form, error.message || 'No se pudo crear la cuenta', 'error');
     }
