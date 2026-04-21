@@ -1,7 +1,7 @@
 const translations = {
   es: {
-    landingTitle: 'Controla tus gastos con inteligencia',
-    landingSubtitle: 'Mira exactamente en qué se va tu plata, ajusta tus hábitos y llega a fin de mes con tranquilidad.',
+    landingTitle: 'Tu dinero, bajo control',
+    landingSubtitle: 'Mira en que gastas y organiza tu mes en minutos.',
     ctaStart: 'Crear cuenta',
     ctaDemo: 'Probar sin iniciar sesión',
     navFeatures: 'Características',
@@ -11,8 +11,8 @@ const translations = {
     navContact: 'Contacto',
   },
   en: {
-    landingTitle: 'Control your expenses intelligently',
-    landingSubtitle: 'See exactly where your money goes, improve your habits, and finish each month with confidence.',
+    landingTitle: 'Your money, in control',
+    landingSubtitle: 'See where you spend and organize your month in minutes.',
     ctaStart: 'Create account',
     ctaDemo: 'Try without sign in',
     navFeatures: 'Features',
